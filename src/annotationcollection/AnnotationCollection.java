@@ -3,6 +3,8 @@ package annotationcollection;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.commons.collections15.Predicate;
+
 import annotation.Annotation;
 
 /**
@@ -41,7 +43,7 @@ public interface AnnotationCollection {
 	 * @param fullyContained Whether the overlappers must be fully contained in the region in order to count
 	 * @return The number of overlappers
 	 */
-	public int getCount(Annotation region, boolean fullyContained);
+	public int numOverlappers(Annotation region, boolean fullyContained);
 	
 	/**
 	 * Get the set of annotations in this collection that overlap the region
@@ -54,7 +56,7 @@ public interface AnnotationCollection {
 	/**
 	 * @return An iterator over all the annotations in this collection
 	 */
-	public Iterator<? extends Annotation> getIterator();
+	public Iterator<? extends Annotation> iterator();
 	
 	/**
 	 * Get an iterator over the set of annotations in this collection that overlap the region
@@ -62,7 +64,13 @@ public interface AnnotationCollection {
 	 * @param fullyContained Whether the overlappers must be fully contained in the region
 	 * @return Iterator over the set of overlappers
 	 */	
-	public Iterator<? extends Annotation> getIterator(Annotation region, boolean fullyContained);
+	public Iterator<? extends Annotation> iterator(Annotation region, boolean fullyContained);
+	
+	/**
+	 * Add a filter that will be applied when getting subsets or iterators
+	 * @param filter A predicate that is true if the annotation passes the filter (should be kept)
+	 */
+	public <T extends Annotation> void addFilter(Predicate<T> filter);
 	
 	
 }

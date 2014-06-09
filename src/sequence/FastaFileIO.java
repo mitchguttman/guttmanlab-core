@@ -1,7 +1,7 @@
 package sequence;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Iterator;
 
 /**
  * Methods to read sequences from a fasta file or write sequences to a fasta file
@@ -15,7 +15,14 @@ public interface FastaFileIO {
 	 * @param fileName Fasta file path
 	 * @return The sequences in the file as sequence objects
 	 */
-	public List<Sequence> readFromFile(String fileName);
+	public Collection<Sequence> readFromFile(String fileName);
+	
+	/**
+	 * Get an iterator over the sequences specified in the file
+	 * @param fileName Fasta file path
+	 * @return An iterator over the sequences in the file
+	 */
+	public Iterator<Sequence> iterateThroughFile(String fileName);
 	
 	/**
 	 * Write a collection of sequences to a fasta file

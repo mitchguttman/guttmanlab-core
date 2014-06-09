@@ -1,9 +1,6 @@
 package coordinatespace;
 
-import java.util.Collection;
 import java.util.Map;
-
-import annotation.Annotation;
 
 /**
  * A coordinate space that is a subset of a background genome
@@ -13,15 +10,9 @@ import annotation.Annotation;
 public class CoordinateSpace {
 	
 	/**
-	 * The background genome that this coordinate space is a subset of
-	 * Key is chromosome name, value is chromosome length
+	 * Description of reference sequences in this coordinate space
+	 * Key is reference name, value is reference length
 	 */
-	private Map<String, Integer> genomeChrSizes;
-	
-	/**
-	 * This coordinate space expressed as annotations on the background genome
-	 * Key is chromosome name, value is the set of annotations on that chromosome
-	 */
-	private Map<String, Collection<Annotation>> coordSpaceOnGenome;
-	
+	private Map<String, Integer> refSizes;
+		
 }

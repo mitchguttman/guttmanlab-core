@@ -40,4 +40,13 @@ public class BlockedAnnotation implements Annotation {
 		throw new UnsupportedOperationException("TODO");
 	}
 
+	/**
+	 * A helper class where we can implement methods for single intervals to use in the general blocked implementations
+	 * @author prussell
+	 *
+	 */
+	private class SingleInterval {
+		
+	}
+	
 }
