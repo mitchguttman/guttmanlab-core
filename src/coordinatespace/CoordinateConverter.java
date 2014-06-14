@@ -1,5 +1,8 @@
 package coordinatespace;
 
+import annotation.Annotation;
+import annotationcollection.AnnotationCollection;
+
 /**
  * Class to convert coordinates from one coordinate space to another
  * @author prussell
@@ -8,13 +11,18 @@ package coordinatespace;
 public class CoordinateConverter {
 	
 	/**
-	 * Coordinate system to convert from
+	 * A mapping between the 2 coordinate spaces
 	 */
-	private CoordinateSpace fromCoordSpace;
+	private AnnotationCollection coordinateMapping;
 	
 	/**
-	 * Coordinate system to convert to
+	 * Convert the annotation to the new coordinate space
+	 * @param feature Annotation in the old reference coordinate space (from)
+	 * @return Annotation in the new reference coordinate space (to)
 	 */
-	private CoordinateSpace toCoordSpace;
+	public Annotation convert(Annotation feature){
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("TODO");
+	}
 	
 }

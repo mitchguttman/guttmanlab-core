@@ -1,5 +1,7 @@
 package annotation;
 
+import java.util.Collection;
+
 import coordinatespace.CoordinateSpace;
 
 /**
@@ -45,4 +47,10 @@ public interface Annotation {
 	 */
 	public Annotation minus(Annotation other);
 
+	/**
+	 * Returns the blocks contained in this annotation
+	 * @return Collection of annotations that each represent a contiguous block within the annotation
+	 */
+	public Collection<Annotation> getBlocks();
+	
 }

@@ -1,5 +1,7 @@
 package annotation;
 
+import java.util.Collection;
+
 import coordinatespace.CoordinateSpace;
 
 public class BlockedAnnotation implements Annotation {
@@ -39,6 +41,12 @@ public class BlockedAnnotation implements Annotation {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("TODO");
 	}
+	
+	@Override
+	public Collection<Annotation> getBlocks() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("TODO");
+	}
 
 	/**
 	 * A helper class where we can implement methods for single intervals to use in the general blocked implementations
@@ -48,5 +56,7 @@ public class BlockedAnnotation implements Annotation {
 	private class SingleInterval {
 		
 	}
+
+	
 	
 }
