@@ -72,5 +72,12 @@ public interface AnnotationCollection {
 	 */
 	public <T extends Annotation> void addFilter(Predicate<T> filter);
 	
+	/**
+	 * Convert the annotation to the new coordinate space
+	 * TODO We might want to be smart and determine the coordinateSpace of the annotation and just convert to the other
+	 * @param feature Annotation in the Reference coordinate space (from)
+	 * @return Annotation in the Feature coordinate space (to)
+	 */
+	public Annotation convert(Annotation feature);
 	
 }
