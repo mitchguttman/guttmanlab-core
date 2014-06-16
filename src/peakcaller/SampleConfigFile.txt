@@ -1,0 +1,28 @@
+:scheduler
+scheduler       OGS
+
+:data
+bam     input   input.bam
+bam     polyA_lincCapture_NHS   polyA_lincCapture_NHS.bam
+bam     polyA_lincCapture_NHS_32minChemDigest   polyA_lincCapture_NHS_32minChemDigest.bam
+
+:genes
+genes_bed       genes.bed
+
+
+:read_filters
+read_genomic_span_filter        input   300000
+read_genomic_span_filter        polyA_lincCapture_NHS   300000
+read_genomic_span_filter        polyA_lincCapture_NHS_32minChemDigest   300000
+read_num_hits_filter    input   1
+read_num_hits_filter    polyA_lincCapture_NHS   1
+read_num_hits_filter    polyA_lincCapture_NHS_32minChemDigest   1
+
+:steps
+initialize_gene_counts
+apply_gene_fpkm_filter  0.1     input
+initialize_regions_as_windows_with_min_count    50      10      polyA_lincCapture_NHS   5
+apply_binomial_filter   0.2     input   polyA_lincCapture_NHS
+merge_candidate_regions
+trim_max_contiguous     0.6     polyA_lincCapture_NHS
+write_candidate_regions peaks.bed
