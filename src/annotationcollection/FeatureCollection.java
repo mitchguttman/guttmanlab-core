@@ -3,6 +3,8 @@ package annotationcollection;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.commons.collections15.Predicate;
+
 import coordinatespace.CoordinateSpace;
 import annotation.Annotation;
 
@@ -79,5 +81,6 @@ public class FeatureCollection implements AnnotationCollection{
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("TODO");
 	}
+
 
 }
