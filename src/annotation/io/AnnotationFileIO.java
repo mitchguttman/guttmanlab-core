@@ -10,7 +10,7 @@ import annotationcollection.AnnotationCollection;
  * @author prussell
  *
  */
-public interface AnnotationFileIO {
+public interface AnnotationFileIO<T extends Annotation> {
 	
 	/**
 	 * Read the file and get the annotations as annotation objects
@@ -18,6 +18,6 @@ public interface AnnotationFileIO {
 	 * @return The collection of annotations described in the file
 	 * @throws IOException 
 	 */
-	public <T extends Annotation> AnnotationCollection<T> loadFromFile(String fileName) throws IOException;
+	public  AnnotationCollection<T> loadFromFile(String fileName) throws IOException;
 	
 }

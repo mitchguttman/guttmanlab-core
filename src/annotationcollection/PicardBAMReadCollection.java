@@ -2,10 +2,7 @@ package annotationcollection;
 
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
 
-import org.apache.commons.collections15.Predicate;
 
 import coordinatespace.CoordinateSpace;
 import net.sf.samtools.SAMFileHeader;
@@ -15,7 +12,6 @@ import net.sf.samtools.SAMFileWriterFactory;
 import net.sf.samtools.SAMRecordIterator;
 import net.sf.samtools.util.CloseableIterator;
 import annotation.Annotation;
-import annotation.BlockedAnnotation;
 import annotation.SAMFragment;
 
 public class PicardBAMReadCollection extends AbstractAnnotationCollection<SAMFragment>{

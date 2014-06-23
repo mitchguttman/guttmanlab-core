@@ -22,7 +22,7 @@ import annotationcollection.FeatureCollection;
  * @author mguttman
  *
  */
-public class BEDFileIO implements AnnotationFileIO {
+public class BEDFileIO implements AnnotationFileIO<Gene> {
 
 	private CoordinateSpace referenceSpace;
 	
@@ -60,6 +60,7 @@ public class BEDFileIO implements AnnotationFileIO {
 		if(tokens.length > 3) {
 			String name=tokens[3];
 			if(tokens.length > 4) {
+				@SuppressWarnings("unused")
 				double score = new Double(tokens[4]); //TODO Currently unused
 				if(tokens.length > 5){
 					orientation= Annotation.Strand.fromString(tokens[5]);

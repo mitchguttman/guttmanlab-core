@@ -38,6 +38,8 @@ public class Pair<T1>{
 
 
 	public boolean equals(Object other){
+		if(!other.getClass().equals(Pair.class)) return false;
+		@SuppressWarnings("unchecked")
 		Pair<T1> t=(Pair<T1>)other;
 		return equals(t);
 	}

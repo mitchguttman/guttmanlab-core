@@ -1,6 +1,5 @@
 package annotation;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -16,7 +15,6 @@ public class SAMFragment extends AbstractAnnotation implements MappedFragment{
 
 	private SAMRecord record;
 	private boolean strandIsFirstOfPair; 
-	private int size;
 	private Annotation annotation;
 	private Collection<? extends ReadFlag> readFlags;
 	

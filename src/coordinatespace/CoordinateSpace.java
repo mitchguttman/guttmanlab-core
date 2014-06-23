@@ -29,11 +29,11 @@ public class CoordinateSpace {
 	 * @param referenceSizesFile File containing reference names and lengths
 	 */
 	public CoordinateSpace(String referenceSizesFile){
-		this.refSizes=loadChrSizes(referenceSizesFile);
+		this.refSizes=getRefSeqLengthsFromTable(referenceSizesFile);
 	}
 
 	public CoordinateSpace(SAMFileHeader fileHeader) {
-		this.refSizes=getRefSequenceLengths(fileHeader);
+		this.refSizes=getRefSeqLengthsFromSamHeader(fileHeader);
 	}
 
 	@Override
@@ -42,12 +42,19 @@ public class CoordinateSpace {
 		throw new UnsupportedOperationException("TODO");
 	}
 	
-	
 	/**
-	 * Get the lengths of the reference sequences
 	 * @return Map associating each reference name with sequence length
 	 */
-	public Map<String, Integer> getRefSequenceLengths(SAMFileHeader header) {
+	public Map<String, Integer> getRefSeqLengths() {
+		return refSizes;
+	}
+	
+	/**
+	 * Get the lengths of the reference sequences from a SAM file header
+	 * @param header SAM file header
+	 * @return Map associating each reference name with sequence length
+	 */
+	private Map<String, Integer> getRefSeqLengthsFromSamHeader(SAMFileHeader header) {
 		Map<String, Integer> rtrn=new TreeMap<String, Integer>();
 		List<SAMSequenceRecord> records = header.getSequenceDictionary().getSequences();
 		if (records.size() > 0) {
@@ -63,9 +70,9 @@ public class CoordinateSpace {
 	/**
 	 * Parse the reference sizes file
 	 * @param referenceSizesFile Tab-delimited file with reference names (ie chromosomes) and lengths
-	 * @return
+	 * @return Map associating each reference name with sequence length
 	 */
-	private Map<String, Integer> loadChrSizes(String referenceSizesFile) {
+	private Map<String, Integer> getRefSeqLengthsFromTable(String referenceSizesFile) {
 		Map<String, Integer> rtrn=new TreeMap<String, Integer>();
 		
 		try{	

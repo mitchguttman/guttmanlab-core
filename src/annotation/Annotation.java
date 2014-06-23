@@ -1,6 +1,5 @@
 package annotation;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -106,14 +105,14 @@ public interface Annotation {
 	 * @param other Another annotation
 	 * @return A new annotation representing a merging of the two
 	 */
-	public <T extends Annotation> T merge(Annotation other);
+	public Annotation merge(Annotation other);
 	
 	/**
 	 * Subtract another annotation from this annotation
 	 * @param other Another annotation
 	 * @return A new annotation representing the part of this annotation remaining after removing the other annotation
 	 */
-	public <T extends Annotation> T minus(Annotation other);
+	public Annotation minus(Annotation other);
 	
 	/**
 	 * Intersect another annotation with this annotation

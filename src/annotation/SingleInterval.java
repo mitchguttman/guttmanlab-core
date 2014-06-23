@@ -73,9 +73,9 @@ public class SingleInterval extends AbstractAnnotation{
 	}
 
 	@Override
-	public <T extends Annotation> T merge(Annotation other) {
+	public Annotation merge(Annotation other) {
 		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("TODO");
 	}
 
 	@Override

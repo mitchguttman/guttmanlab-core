@@ -1,18 +1,13 @@
 package annotation;
 
-import java.util.Collection;
 import java.util.Iterator;
-
-import annotation.Annotation.Strand;
-import net.sf.samtools.util.CloseableIterator;
-import coordinatespace.CoordinateSpace;
 
 /**
  * An abstract class that implements many of the shared features of an annotation
  * @author mguttman
  *
  */
-public abstract class AbstractAnnotation implements Annotation{
+public abstract class AbstractAnnotation implements Annotation {
 
 	@Override
 	public BlockedAnnotation intersect(Annotation other) {
@@ -46,7 +41,7 @@ public abstract class AbstractAnnotation implements Annotation{
 	}
 
 	@Override
-	public BlockedAnnotation merge(Annotation other) {
+	public Annotation merge(Annotation other) {
 		BlockedAnnotation rtrn=new BlockedAnnotation();
 		Iterator<SingleInterval> blocks1=getBlocks();
 		while(blocks1.hasNext()){
@@ -74,7 +69,7 @@ public abstract class AbstractAnnotation implements Annotation{
 	}
 
 	@Override
-	public <T extends Annotation> T minus(Annotation other) {
+	public Annotation minus(Annotation other) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("TODO");
 	}

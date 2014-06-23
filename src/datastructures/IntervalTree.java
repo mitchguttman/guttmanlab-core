@@ -93,7 +93,6 @@ public class IntervalTree<V>
 	 * @param value The associated value.
 	 * @return The old value associated with that interval, or the sentinel.
 	 */
-	@SuppressWarnings("null")
 	public V placeInTree( int start, int end, V value )
 	{
 		if ( start > end )
@@ -212,6 +211,7 @@ public class IntervalTree<V>
 	 * @param interval The interval sought.
 	 * @return The Node that represents that interval, or null.
 	 */
+	@SuppressWarnings("unused")
 	private Node<V> find( Interval interval )
 	{
 		return find(interval.getStart(),interval.getEnd());
@@ -258,6 +258,7 @@ public class IntervalTree<V>
 	 * @param idx The rank of the interval sought (from 0 to size()-1).
 	 * @return The Node that represents the nth interval.
 	 */
+	@SuppressWarnings("unused")
 	private Node<V> findByIndex( int idx )
 	{
 		return Node.findByRank(mRoot,idx+1);
@@ -320,7 +321,6 @@ public class IntervalTree<V>
 	 * @param end The interval's end.
 	 * @return The earliest >= interval, or null if there is none.
 	 */
-	@SuppressWarnings("null")
 	public Node<V> min( int start, int end )
 	{
 		Node<V> result = null;
@@ -418,7 +418,7 @@ public class IntervalTree<V>
 	
 	public List<V> toList(){
 		//System.err.println("To Collection");
-		List<V> rtrn=new ArrayList();
+		List<V> rtrn=new ArrayList<V>();
 		
 		Iterator<Node<V>> iter=iterator();
 		
@@ -482,7 +482,6 @@ public class IntervalTree<V>
 	 * @param end The interval's end.
 	 * @return The latest >= interval, or null if there is none.
 	 */
-	@SuppressWarnings("null")
 	public Node<V> max( int start, int end )
 	{
 		Node<V> result = null;
@@ -532,6 +531,7 @@ public class IntervalTree<V>
 	 * @param interval The minimum interval.
 	 * @return An iterator.
 	 */
+	@SuppressWarnings("unused")
 	private Iterator<Node<V>> iterator( Interval interval )
 	{
 		return new FwdIterator(min(interval.getStart(),interval.getEnd()));
@@ -543,6 +543,7 @@ public class IntervalTree<V>
 	 * @param end The interval's end.
 	 * @return An iterator.
 	 */
+	@SuppressWarnings("unused")
 	private Iterator<Node<V>> iterator( int start, int end )
 	{
 		return new FwdIterator(min(start,end));
@@ -592,6 +593,7 @@ public class IntervalTree<V>
 	 * Return an iterator over the entire tree that returns intervals in reverse order.
 	 * @return An iterator.
 	 */
+	@SuppressWarnings("unused")
 	private Iterator<Node<V>> reverseIterator()
 	{
 		return new RevIterator(max());
@@ -602,6 +604,7 @@ public class IntervalTree<V>
 	 * @param interval The maximum interval.
 	 * @return An iterator.
 	 */
+	@SuppressWarnings("unused")
 	private Iterator<Node<V>> reverseIterator( Interval interval )
 	{
 		return new RevIterator(max(interval.getStart(),interval.getEnd()));
@@ -625,7 +628,7 @@ public class IntervalTree<V>
 	 * @return An iterator
 	 */
 	public Iterator<V> getNodesBeforeInterval(int start, int end){
-		return new ValuesIterator(reverseIterator(start, end));
+		return new ValuesIterator<V>(reverseIterator(start, end));
 	}
 
 	/**
@@ -633,6 +636,7 @@ public class IntervalTree<V>
 	 * into the tree, or to signal "not found" when removing an interval.  This is null by default.
 	 * @return The sentinel value.
 	 */
+	@SuppressWarnings("unused")
 	private V getSentinel()
 	{
 		return mSentinel;
@@ -644,6 +648,7 @@ public class IntervalTree<V>
 	 * @param sentinel The new sentinel value.
 	 * @return The old sentinel value.
 	 */
+	@SuppressWarnings("unused")
 	private V setSentinel( V sentinel )
 	{
 		V result = mSentinel;
@@ -924,7 +929,6 @@ public class IntervalTree<V>
 			return result;
 		}
 
-		@SuppressWarnings("null")
 		static <V1> Node<V1> getNextOverlapper( Node<V1> node, int start, int end )
 		{
 			do

@@ -2,26 +2,19 @@ package annotationcollection;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import net.sf.samtools.SAMRecordIterator;
 import net.sf.samtools.util.CloseableIterator;
 
-import org.apache.commons.collections15.Predicate;
 
 import coordinatespace.CoordinateSpace;
 import datastructures.IntervalTree;
-import datastructures.IntervalTree.Node;
 import annotation.Annotation;
 import annotation.BlockedAnnotation;
-import annotation.SAMFragment;
-import annotation.SingleInterval;
 
-public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnnotationCollection<T>{
+public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnnotationCollection<T> {
 
 	/**
 	 * The reference coordinate system that features are mapped to

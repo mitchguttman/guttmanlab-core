@@ -76,6 +76,10 @@ public interface Interval {
     {
     	
     	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		/**
     	 * For Berkeley DB only
     	 * Do not use this constructor
     	 */
