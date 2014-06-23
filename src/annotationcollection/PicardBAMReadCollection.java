@@ -8,6 +8,7 @@ import java.util.Collection;
 import org.apache.commons.collections15.Predicate;
 
 import coordinatespace.CoordinateSpace;
+import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMFileWriter;
 import net.sf.samtools.SAMFileWriterFactory;
@@ -43,6 +44,18 @@ public class PicardBAMReadCollection extends AbstractAnnotationCollection<SAMFra
 	public void writeToFile(String fileName) {
 		SAMFileWriter writer=new SAMFileWriterFactory().makeSAMOrBAMWriter(this.reader.getFileHeader(), true, new File(fileName));
 		CloseableIterator<SAMFragment> iter= iterator();
+		while(iter.hasNext()){
+			SAMFragment ann=iter.next();
+			writer.addAlignment(ann.getSamRecord());
+		}
+		writer.close();
+		iter.close();
+	}
+	
+	//TODO This can be removed, its just for debugging
+	public void writeToFile(String fileName, Annotation region) {
+		SAMFileWriter writer=new SAMFileWriterFactory().makeSAMOrBAMWriter(this.reader.getFileHeader(), true, new File(fileName));
+		CloseableIterator<SAMFragment> iter= iterator(region, false);
 		while(iter.hasNext()){
 			SAMFragment ann=iter.next();
 			writer.addAlignment(ann.getSamRecord());
@@ -104,4 +117,6 @@ public class PicardBAMReadCollection extends AbstractAnnotationCollection<SAMFra
 		return counter;
 	}
 	
+	//TODO Remove this, it is just for debugging
+	public SAMFileHeader getFileHeader(){return this.reader.getFileHeader();}
 }

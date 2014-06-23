@@ -81,8 +81,20 @@ public abstract class AbstractAnnotation implements Annotation{
 	
 	@Override
 	public boolean overlaps(Annotation other) {
+		//TODO This method still needs to be tested to ensure that it does what we expect
 		//Check if the blocks overlap
-		throw new UnsupportedOperationException("TODO");
+		Iterator<SingleInterval> blocks1=getBlocks();
+		while(blocks1.hasNext()){
+			SingleInterval block1=blocks1.next();
+			Iterator<SingleInterval> blocks2=other.getBlocks();
+			while(blocks2.hasNext()){
+				SingleInterval block2=blocks2.next();
+				if(overlaps(block1, block2)){
+					return true;
+				}
+			}	
+		}
+		return false;
 	}
 	
 	/**

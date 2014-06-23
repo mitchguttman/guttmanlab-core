@@ -9,8 +9,12 @@ import org.apache.commons.collections15.Predicate;
 import net.sf.samtools.util.CloseableIterator;
 import annotation.Annotation;
 import annotation.BlockedAnnotation;
+import annotation.ContiguousWindow;
 import annotation.SingleInterval;
+import annotation.Window;
+import annotation.Annotation.Strand;
 import coordinatespace.CoordinateSpace;
+import datastructures.IntervalTree;
 
 public abstract class AbstractAnnotationCollection<T extends Annotation> implements AnnotationCollection<T>{
 
@@ -41,35 +45,101 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("TODO");
 	}
-
-	@Override
-	public boolean overlaps(AnnotationCollection<? extends Annotation> other) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("TODO");
-	}
 	
 	@Override
 	public CloseableIterator<BlockedAnnotation> convertCoordinates(CloseableIterator<? extends Annotation> annotations, CoordinateSpace referenceSpaceForAnnotations){
+		//TODO Should check the coordinate space and convert appropriately
 		return convertFromReferenceSpace(annotations);
-		
-		//If the reference equals the reference of the FeatureSpace it will return feature space
-		/*if(reference.equals(mapping.getReferenceCoordinateSpace())){
-			return convertFromReferenceSpace(annotation);
-		}
-		
-		//If the reference equals the feature in the FeatureSpace it will return reference space
-		if(reference.equals(mapping.getFeatureCoordinateSpace())){
-			//return convertFromFeatureSpace(annotation);
-			// TODO Auto-generated method stub
-			throw new UnsupportedOperationException("TODO");
-		}
-		
-		throw new IllegalArgumentException("The coordinate spaces are not equal to either Reference or Feature");*/
 	}
 	
 	private CloseableIterator<BlockedAnnotation> convertFromReferenceSpace(CloseableIterator<? extends Annotation> iterator){
-		return new CoordinateConverterIterator(iterator, this); //TODO This may be dangerous depending on what gets passed
+		return new CoordinateConverterIterator(iterator, this);
 	}
+	
+	public CloseableIterator<? extends Window<T>> getWindows(Annotation region, int windowLength){
+		CloseableIterator<T> iter=iterator(region, false);
+		return new WindowIterator<T>(iter, windowLength);
+	}
+
+	public class WindowIterator<T extends Annotation> implements CloseableIterator<Window<T>>{
+
+		IntervalTree<Window<T>> windows;
+		CloseableIterator<T> iter;
+		Iterator<Window<T>> fullyFormedWindows;
+		int windowLength;
+		boolean hasNext;
+		
+		public WindowIterator(CloseableIterator<T> iter, int windowLength){
+			this.iter=iter;
+			this.windowLength=windowLength;
+			this.windows=new IntervalTree<Window<T>>();
+			this.hasNext=false;
+		}
+		
+		@Override
+		public boolean hasNext() {
+			if(fullyFormedWindows!=null && fullyFormedWindows.hasNext()){return true;}
+			else if(iter.hasNext()){updateWindows(); return hasNext();}
+			return false;
+		}
+
+		@Override
+		public Window<T> next() {
+			return fullyFormedWindows.next();
+		}
+		
+		private void updateWindows(){
+			T read=iter.next();
+			//all windows with an end position before the start of this window
+			fullyFormedWindows=removeFullyFormedWindows(read).iterator();
+			addReadToWindows(read);
+		}
+		
+		private void addReadToWindows(T read){
+			//Make all windows overlapping read blocks
+			Iterator<SingleInterval> interval=read.getBlocks();
+			while(interval.hasNext()){
+				SingleInterval block=interval.next();
+				int start=Math.max(0, block.getReferenceStartPosition()-windowLength);
+				for(int i=start; i<block.getReferenceEndPosition(); i++){
+					Window<T> window=windows.remove(i, i+windowLength);
+					if(window==null){
+						//make a window
+						window=new ContiguousWindow<T>(read.getReferenceName(), i, i+windowLength, Strand.BOTH);
+					}
+					window.addAnnotation(read);
+					windows.put(window.getReferenceStartPosition(), window.getReferenceEndPosition(), window);
+				}
+			}
+		}
+
+		private Collection<Window<T>> removeFullyFormedWindows(T read) {
+			Iterator<Window<T>> iter=windows.getNodesBeforeInterval(read.getReferenceStartPosition(), read.getReferenceStartPosition());
+			Collection<Window<T>> rtrn=new ArrayList<Window<T>>();
+			while(iter.hasNext()){
+				Window<T> w=iter.next();
+				if((!w.getReferenceName().equalsIgnoreCase(read.getReferenceName())) || (w.getReferenceEndPosition()<read.getReferenceStartPosition())){
+					rtrn.add(w);
+					windows.remove(w.getReferenceStartPosition(), w.getReferenceEndPosition());
+				}
+			}
+			this.hasNext=!rtrn.isEmpty();
+			return rtrn;
+		}
+
+		@Override
+		public void remove() {
+			this.iter.remove();
+		}
+
+		@Override
+		public void close() {
+			this.iter.close();
+		}
+		
+		
+	}
+	
 	
 	public class CoordinateConverterIterator implements CloseableIterator<BlockedAnnotation>{
 		
@@ -129,8 +199,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 
 		@Override
 		public void remove() {
-			// TODO Auto-generated method stub
-			
+			this.iter.remove();
 		}
 
 		@Override

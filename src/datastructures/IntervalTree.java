@@ -212,7 +212,7 @@ public class IntervalTree<V>
 	 * @param interval The interval sought.
 	 * @return The Node that represents that interval, or null.
 	 */
-	public Node<V> find( Interval interval )
+	private Node<V> find( Interval interval )
 	{
 		return find(interval.getStart(),interval.getEnd());
 	}
@@ -223,7 +223,7 @@ public class IntervalTree<V>
 	 * @param end The interval's end.
 	 * @return The Node that represents that interval, or null.
 	 */
-	public Node<V> find( int start, int end )
+	private Node<V> find( int start, int end )
 	{
 		Node<V> node = mRoot;
 
@@ -242,11 +242,23 @@ public class IntervalTree<V>
 	}
 
 	/**
+	 * Find an interval.
+	 * @param start The interval's start.
+	 * @param end The interval's end.
+	 * @return The value at this position or null.
+	 */
+	public V findValue (int start, int end ){
+		Node<V> node=find(start, end);
+		if(node==null){return null;}
+		return node.getValue();
+	}
+	
+	/**
 	 * Find the nth interval in the tree.
 	 * @param idx The rank of the interval sought (from 0 to size()-1).
 	 * @return The Node that represents the nth interval.
 	 */
-	public Node<V> findByIndex( int idx )
+	private Node<V> findByIndex( int idx )
 	{
 		return Node.findByRank(mRoot,idx+1);
 	}
@@ -421,7 +433,7 @@ public class IntervalTree<V>
 	 * Find the greatest interval in the tree.
 	 * @return The latest interval, or null if the tree is empty.
 	 */
-	public Node<V> max()
+	private Node<V> max()
 	{
 		Node<V> result = null;
 		Node<V> node = mRoot;
@@ -433,6 +445,25 @@ public class IntervalTree<V>
 		}
 
 		return result;
+	}
+	
+	/**
+	 * Find the greatest interval in the tree.
+	 * @return The latest interval, or null if the tree is empty.
+	 */
+	public V maxValue()
+	{
+		Node<V> result = null;
+		Node<V> node = mRoot;
+
+		while ( node != null )
+		{
+			result = node;
+			node = node.getRight();
+		}
+
+		if(result==null){return null;}
+		return result.getValue();
 	}
 
 	/**

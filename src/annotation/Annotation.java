@@ -91,7 +91,7 @@ public interface Annotation {
 	
 	/**
 	 * @param other Another annotation
-	 * @return True iff this annotation overlaps the other annotation
+	 * @return True if any of the block in this annotation overlaps the blocks of the other annotation
 	 */
 	public boolean overlaps(Annotation other);
 

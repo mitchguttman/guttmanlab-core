@@ -31,13 +31,20 @@ public class BlockedAnnotation extends AbstractAnnotation {
 	}
 	
 	/**
+	 * Initialize as empty but with name
+	 */
+	public BlockedAnnotation(String name){
+		this();
+		this.name=name;
+	}
+	
+	/**
 	 * A blocked annotation is defined by its blocks
 	 * @param blocks
 	 * @param name 
 	 */
 	public BlockedAnnotation(Collection<Annotation> blocks, String name){
-		this();
-		this.name=name;
+		this(name);
 		for(Annotation block: blocks){
 			addBlock(block);
 		}

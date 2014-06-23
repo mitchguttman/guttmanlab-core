@@ -1,16 +1,12 @@
 package annotationcollection;
 
-
 import java.util.Collection;
-import java.util.Iterator;
-
 import net.sf.samtools.util.CloseableIterator;
-
 import org.apache.commons.collections15.Predicate;
-
 import coordinatespace.CoordinateSpace;
 import annotation.Annotation;
 import annotation.BlockedAnnotation;
+import annotation.Window;
 
 /**
  * A container of annotations
@@ -30,12 +26,6 @@ public interface AnnotationCollection<T extends Annotation> {
 	 * @return True iff the annotation overlaps some annotation in this collection
 	 */
 	public boolean overlaps(Annotation other);
-	
-	/**
-	 * @param other Another annotation collection
-	 * @return True iff some annotation in this collection overlaps some annotation in the other collection
-	 */
-	public boolean overlaps(AnnotationCollection<? extends Annotation> other);
 	
 	/**
 	 * Get the number of annotations in this collection that overlap the region
@@ -99,4 +89,11 @@ public interface AnnotationCollection<T extends Annotation> {
 	 */
 	public CloseableIterator<BlockedAnnotation> convertCoordinates(CloseableIterator<? extends Annotation> annotations, CoordinateSpace referenceSpaceForAnnotations);
 	
+	/**
+	 * Get an iterator over all windows of size widowLength overlapping a region
+	 * @param region The region to scan
+	 * @param windowLength The length of the window
+	 * @return Iterator of windows and all of their overlapping reads of type T
+	 */
+	public <X extends Window<T>> CloseableIterator<X> getWindows(Annotation region, int windowLength);
 }
