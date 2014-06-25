@@ -66,6 +66,13 @@ public interface AnnotationCollection<T extends Annotation> {
 	 * @param fileName The file to write to
 	 */
 	public void writeToFile(String fileName);
+	
+	/**
+	 * Write the collection of annotations (using filters) to a file
+	 * @param fileName The file to write to
+	 * @param region The region to write
+	 */
+	public void writeToFile(String fileName, Annotation region);
 
 	/**
 	 * @return The reference coordinate space
@@ -95,5 +102,5 @@ public interface AnnotationCollection<T extends Annotation> {
 	 * @param windowLength The length of the window
 	 * @return Iterator of windows and all of their overlapping reads of type T
 	 */
-	public <X extends Window<T>> CloseableIterator<X> getWindows(Annotation region, int windowLength);
+	public CloseableIterator<? extends Window<T>> getWindows(Annotation region, int windowLength);
 }

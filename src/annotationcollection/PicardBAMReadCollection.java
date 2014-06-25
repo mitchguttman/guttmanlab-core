@@ -38,8 +38,13 @@ public class PicardBAMReadCollection extends AbstractAnnotationCollection<SAMFra
 
 	@Override
 	public void writeToFile(String fileName) {
-		SAMFileWriter writer=new SAMFileWriterFactory().makeSAMOrBAMWriter(this.reader.getFileHeader(), true, new File(fileName));
 		CloseableIterator<SAMFragment> iter= iterator();
+		writeToFile(fileName, iter);
+	}
+	
+	private void writeToFile(String fileName, CloseableIterator<SAMFragment> iter){
+		SAMFileWriter writer=new SAMFileWriterFactory().makeSAMOrBAMWriter(this.reader.getFileHeader(), true, new File(fileName));
+		
 		while(iter.hasNext()){
 			SAMFragment ann=iter.next();
 			writer.addAlignment(ann.getSamRecord());
@@ -48,16 +53,9 @@ public class PicardBAMReadCollection extends AbstractAnnotationCollection<SAMFra
 		iter.close();
 	}
 	
-	//TODO This can be removed, its just for debugging
 	public void writeToFile(String fileName, Annotation region) {
-		SAMFileWriter writer=new SAMFileWriterFactory().makeSAMOrBAMWriter(this.reader.getFileHeader(), true, new File(fileName));
 		CloseableIterator<SAMFragment> iter= iterator(region, false);
-		while(iter.hasNext()){
-			SAMFragment ann=iter.next();
-			writer.addAlignment(ann.getSamRecord());
-		}
-		writer.close();
-		iter.close();
+		writeToFile(fileName, iter);
 	}
 	
 	public class WrappedIterator implements CloseableIterator<SAMFragment>{
@@ -100,19 +98,6 @@ public class PicardBAMReadCollection extends AbstractAnnotationCollection<SAMFra
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public int numOverlappers(Annotation region, boolean fullyContained) {
-		int counter=0;
-		CloseableIterator<SAMFragment> iter=iterator(region, fullyContained);
-		while(iter.hasNext()){
-			iter.next();
-			counter++;
-		}
-		iter.close();
-		return counter;
-	}
 	
-	//TODO Remove this, it is just for debugging
 	public SAMFileHeader getFileHeader(){return this.reader.getFileHeader();}
 }

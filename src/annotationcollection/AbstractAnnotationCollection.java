@@ -10,6 +10,7 @@ import net.sf.samtools.util.CloseableIterator;
 import annotation.Annotation;
 import annotation.BlockedAnnotation;
 import annotation.ContiguousWindow;
+import annotation.SAMFragment;
 import annotation.SingleInterval;
 import annotation.Window;
 import annotation.Annotation.Strand;
@@ -56,11 +57,30 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		return new CoordinateConverterIterator(iterator, this);
 	}
 	
+	@Override
 	public CloseableIterator<? extends Window<T>> getWindows(Annotation region, int windowLength){
 		CloseableIterator<T> iter=iterator(region, false);
 		return new WindowIterator<T>(iter, windowLength);
 	}
+	
+	@Override
+	public int numOverlappers(Annotation region, boolean fullyContained) {
+		int counter=0;
+		CloseableIterator<T> iter=iterator(region, fullyContained);
+		while(iter.hasNext()){
+			iter.next();
+			counter++;
+		}
+		iter.close();
+		return counter;
+	}
 
+	/**
+	 * This class requires that you have a sorted iterator of reads
+	 * @author mguttman
+	 *
+	 * @param <T1>
+	 */
 	public class WindowIterator<T1 extends Annotation> implements CloseableIterator<Window<T1>>{
 
 		IntervalTree<Window<T1>> windows;

@@ -616,7 +616,7 @@ public class IntervalTree<V>
 	 * @param end The interval's end.
 	 * @return An iterator.
 	 */
-	private Iterator<Node<V>> reverseIterator( int start, int end )
+	public Iterator<Node<V>> reverseIterator( int start, int end )
 	{
 		return new RevIterator(max(start,end));
 	}

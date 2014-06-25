@@ -5,6 +5,11 @@ public class Pair<T1>{
 	T1 value1;
 	T1 value2;
 	
+	/**
+	 * An empty constructor
+	 */
+	public Pair(){}
+	
 	public Pair(T1 v1, T1 v2){
 		this.value1=v1;
 		this.value2=v2;

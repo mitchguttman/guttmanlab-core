@@ -1,5 +1,6 @@
 package annotationcollection;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -19,6 +20,18 @@ public class FilteredIterator<T extends Annotation> implements CloseableIterator
 		public FilteredIterator(CloseableIterator<T> iter, Collection<Predicate<T>> filters){
 			this.iter=iter;
 			this.filters=filters;
+		}
+		
+		public FilteredIterator(CloseableIterator<T> iter, Collection<Predicate<T>> filters, Predicate<T> additionalFilter){
+			this.iter=iter;
+			this.filters=filters;
+			this.filters.add(additionalFilter);
+		}
+		
+		public FilteredIterator(CloseableIterator<T> iter, Predicate<T> filter){
+			this.iter=iter;
+			this.filters=new ArrayList<Predicate<T>>();
+			this.filters.add(filter);
 		}
 		
 		public FilteredIterator(Iterator<T> iter, Collection<Predicate<T>> filters){

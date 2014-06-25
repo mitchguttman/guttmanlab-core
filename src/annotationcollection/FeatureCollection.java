@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import net.sf.samtools.util.CloseableIterator;
-
-
 import coordinatespace.CoordinateSpace;
 import datastructures.IntervalTree;
 import annotation.Annotation;
@@ -58,24 +56,18 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 	}
 
 	@Override
-	public int numOverlappers(Annotation region, boolean fullyContained) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("TODO");
-	}
-
-	@Override
 	public void writeToFile(String fileName) {
 		CloseableIterator<T> iter=iterator();
-		
-		try{
-			FileWriter writer=new FileWriter(fileName);
-			while(iter.hasNext()){
-				T next=iter.next();
-				writer.write(next.toString()+"\n");
-			}
-			writer.close();
-		}catch(IOException ex){throw new IllegalArgumentException();}
-		
+		try{writeToFile(fileName, iter);}catch(IOException ex){ex.printStackTrace();}
+	}
+	
+	private void writeToFile(String fileName, CloseableIterator<T> iter) throws IOException{
+		FileWriter writer=new FileWriter(fileName);
+		while(iter.hasNext()){
+			T next=iter.next();
+			writer.write(next.toString()+"\n");
+		}
+		writer.close();
 		iter.close();
 	}
 
@@ -141,6 +133,12 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 		public void close() {
 			// TODO Auto-generated method stub
 		}
+	}
+
+	@Override
+	public void writeToFile(String fileName, Annotation region) {
+		try{writeToFile(fileName, iterator(region, false));
+		}catch(IOException ex){ex.printStackTrace();}
 	}
 	
 }
