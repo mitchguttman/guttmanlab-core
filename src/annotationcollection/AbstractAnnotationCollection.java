@@ -10,7 +10,6 @@ import net.sf.samtools.util.CloseableIterator;
 import annotation.Annotation;
 import annotation.BlockedAnnotation;
 import annotation.ContiguousWindow;
-import annotation.SAMFragment;
 import annotation.SingleInterval;
 import annotation.Window;
 import annotation.Annotation.Strand;
@@ -59,14 +58,14 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 	
 	@Override
 	public CloseableIterator<? extends Window<T>> getWindows(Annotation region, int windowLength){
-		CloseableIterator<T> iter=iterator(region, false);
+		CloseableIterator<T> iter=sortedIterator(region, false);
 		return new WindowIterator<T>(iter, windowLength);
 	}
 	
 	@Override
 	public int numOverlappers(Annotation region, boolean fullyContained) {
 		int counter=0;
-		CloseableIterator<T> iter=iterator(region, fullyContained);
+		CloseableIterator<T> iter=sortedIterator(region, fullyContained);
 		while(iter.hasNext()){
 			iter.next();
 			counter++;
@@ -198,7 +197,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 			Collection<BlockedAnnotation> rtrn=new ArrayList<BlockedAnnotation>();
 			
 			//Find features overlapping the annotation
-			CloseableIterator<? extends Annotation> iter=mapping.iterator(annotation, false);
+			CloseableIterator<? extends Annotation> iter=mapping.sortedIterator(annotation, false);
 			
 			//Adjust the coordinates of the feature as needed in featureSpace (ie as distance from start and end)
 			while(iter.hasNext()){

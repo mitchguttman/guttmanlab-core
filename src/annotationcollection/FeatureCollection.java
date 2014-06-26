@@ -57,7 +57,7 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 
 	@Override
 	public void writeToFile(String fileName) {
-		CloseableIterator<T> iter=iterator();
+		CloseableIterator<T> iter=sortedIterator();
 		try{writeToFile(fileName, iter);}catch(IOException ex){ex.printStackTrace();}
 	}
 	
@@ -72,12 +72,12 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 	}
 
 	@Override
-	public CloseableIterator<T> iterator() {
+	public CloseableIterator<T> sortedIterator() {
 		return new FilteredIterator<T>(new WrappedIterator(this.annotationTree), getFilters());
 	}
 
 	@Override
-	public CloseableIterator<T> iterator(Annotation region, boolean fullyContained) {
+	public CloseableIterator<T> sortedIterator(Annotation region, boolean fullyContained) {
 		IntervalTree<T> tree=this.annotationTree.get(region.getReferenceName());
 		Iterator<T> iter=tree.overlappingValueIterator(region.getReferenceStartPosition(), region.getReferenceEndPosition());
 		return new FilteredIterator<T>(iter, getFilters());
@@ -137,7 +137,7 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 
 	@Override
 	public void writeToFile(String fileName, Annotation region) {
-		try{writeToFile(fileName, iterator(region, false));
+		try{writeToFile(fileName, sortedIterator(region, false));
 		}catch(IOException ex){ex.printStackTrace();}
 	}
 	

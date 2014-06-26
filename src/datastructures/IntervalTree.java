@@ -512,7 +512,7 @@ public class IntervalTree<V>
 	 * Return an iterator over the entire tree.
 	 * @return An iterator.
 	 */
-	private Iterator<Node<V>> iterator()
+	public Iterator<Node<V>> iterator()
 	{
 		return new FwdIterator(min());
 	}

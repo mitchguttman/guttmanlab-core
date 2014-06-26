@@ -36,17 +36,17 @@ public interface AnnotationCollection<T extends Annotation> {
 	public int numOverlappers(Annotation region, boolean fullyContained);
 	
 	/**
-	 * @return An iterator over all the annotations in this collection
+	 * @return A sorted iterator over all the annotations in this collection
 	 */
-	public CloseableIterator<T> iterator();
+	public CloseableIterator<T> sortedIterator();
 	
 	/**
-	 * Get an iterator over the set of annotations in this collection that overlap the region
+	 * A sorted iterator over the set of annotations in this collection that overlap the region (must be sorted)
 	 * @param region Region to check for overlappers
 	 * @param fullyContained Whether the overlappers must be fully contained in the region
 	 * @return Iterator over the set of overlappers
 	 */	
-	public CloseableIterator<T> iterator(Annotation region, boolean fullyContained);
+	public CloseableIterator<T> sortedIterator(Annotation region, boolean fullyContained);
 	
 	/**
 	 * Add a filter that will be applied when getting subsets or iterators

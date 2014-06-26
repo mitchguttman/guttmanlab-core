@@ -22,12 +22,6 @@ public class FilteredIterator<T extends Annotation> implements CloseableIterator
 			this.filters=filters;
 		}
 		
-		public FilteredIterator(CloseableIterator<T> iter, Collection<Predicate<T>> filters, Predicate<T> additionalFilter){
-			this.iter=iter;
-			this.filters=filters;
-			this.filters.add(additionalFilter);
-		}
-		
 		public FilteredIterator(CloseableIterator<T> iter, Predicate<T> filter){
 			this.iter=iter;
 			this.filters=new ArrayList<Predicate<T>>();
