@@ -66,6 +66,11 @@ public interface Annotation {
 			if(value.equals("*")) return UNSTRANDED;
 			else return UNKNOWN;
 		}
+
+		public static Strand valueOf(boolean isNegativeStrandFlag) {
+			if(isNegativeStrandFlag){return NEGATIVE;}
+			else{return POSITIVE;}
+		}
 	}
 	
 	/**
