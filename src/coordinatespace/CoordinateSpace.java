@@ -32,6 +32,10 @@ public class CoordinateSpace {
 		this.refSizes=getRefSeqLengthsFromTable(referenceSizesFile);
 	}
 
+	public CoordinateSpace(Map<String, Integer> sizes){
+		this.refSizes=sizes;
+	}
+	
 	public CoordinateSpace(SAMFileHeader fileHeader) {
 		this.refSizes=getRefSeqLengthsFromSamHeader(fileHeader);
 	}
@@ -85,6 +89,26 @@ public class CoordinateSpace {
 			reader.close();
 		}catch(IOException ex){ex.printStackTrace();}
 		return rtrn;
+	}
+
+	/**
+	 * Convert the CoordinateSpace into a SAMFileHeader
+	 * @return The SAMFileHeader
+	 */
+	public SAMFileHeader getBAMFileHeader() {
+		SAMFileHeader header=new SAMFileHeader();
+
+		//add sequences
+		for(String refSeq: this.refSizes.keySet()){
+			int size=this.refSizes.get(refSeq)+1; //TODO I think this is correct for the header
+			SAMSequenceRecord seq=new SAMSequenceRecord(refSeq, size);
+			header.addSequence(seq);
+		}
+
+		//Set sort order
+		header.setSortOrder(SAMFileHeader.SortOrder.coordinate);
+				
+		return header;
 	}
 	
 	
