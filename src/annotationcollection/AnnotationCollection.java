@@ -1,11 +1,15 @@
 package annotationcollection;
 
 import java.util.Collection;
+
 import net.sf.samtools.util.CloseableIterator;
+
 import org.apache.commons.collections15.Predicate;
+
 import coordinatespace.CoordinateSpace;
 import annotation.Annotation;
 import annotation.BlockedAnnotation;
+import annotation.DerivedAnnotation;
 import annotation.Window;
 
 /**
@@ -65,15 +69,8 @@ public interface AnnotationCollection<T extends Annotation> {
 	 * Write the collection of annotations (using filters) to a file
 	 * @param fileName The file to write to
 	 */
-	public void writeToFile(String fileName);
+	public void writeToBAM(String fileName);
 	
-	/**
-	 * Write the collection of annotations (using filters) to a file
-	 * @param fileName The file to write to
-	 * @param region The region to write
-	 */
-	public void writeToFile(String fileName, Annotation region);
-
 	/**
 	 * @return The reference coordinate space
 	 */
@@ -92,9 +89,10 @@ public interface AnnotationCollection<T extends Annotation> {
 	 * If the reference doesn't equal either, it will throw an Exception
 	 * @param annotations An iterator of the annotations to convert
 	 * @param referenceSpaceForAnnotations The reference coordinate space of the annotation to map (must match either reference or feature space)
-	 * @return An iterator of annotations in the new feature space
+	 * @param fullyContained whether to only convert a fragment if it is fully within the feature (true) or return the trimmed partial (false)
+	 * @return An iterator of annotations in the new feature space (A window object but really can be anything with hasParent())
 	 */
-	public CloseableIterator<BlockedAnnotation> convertCoordinates(CloseableIterator<? extends Annotation> annotations, CoordinateSpace referenceSpaceForAnnotations);
+	public <X extends Annotation> CloseableIterator<DerivedAnnotation<X>> convertCoordinates(CloseableIterator<X> annotations, CoordinateSpace referenceSpaceForAnnotations, boolean fullyContained);
 	
 	/**
 	 * Get an iterator over all windows of size widowLength overlapping a region
@@ -103,4 +101,12 @@ public interface AnnotationCollection<T extends Annotation> {
 	 * @return Iterator of windows and all of their overlapping reads of type T
 	 */
 	public CloseableIterator<? extends Window<T>> getWindows(Annotation region, int windowLength);
+	
+	/**
+	 * Converts a single annotation
+	 * @param annotation The annotation to convert
+	 * @param fullyContained Whether to only return fully contained values
+	 * @return Converted annotations
+	 */
+	public <X extends Annotation> Collection<DerivedAnnotation<X>> convertCoordinates(X annotation, boolean fullyContained);
 }

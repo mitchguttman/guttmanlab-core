@@ -21,12 +21,6 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 	private Map<String, IntervalTree<T>> annotationTree;
 	private int featureCount;
 	
-	/**
-	 * The feature coordinate system that features are mapped from
-	 * TODO This may not be needed because it is defined by the feature collection
-	 */
-	private CoordinateSpace featureCoordinateSpace;
-	
 	public FeatureCollection(CoordinateSpace referenceSpace){
 		super();
 		this.referenceCoordinateSpace=referenceSpace;
@@ -55,7 +49,6 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 		return this.featureCount;
 	}
 
-	@Override
 	public void writeToFile(String fileName) {
 		CloseableIterator<T> iter=sortedIterator();
 		try{writeToFile(fileName, iter);}catch(IOException ex){ex.printStackTrace();}
@@ -88,10 +81,6 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 	 */
 	public CoordinateSpace getReferenceCoordinateSpace(){return this.referenceCoordinateSpace;}
 	
-	/**
-	 * @return The coordinateSpace of the features for this annotation collection
-	 */
-	public CoordinateSpace getFeatureCoordinateSpace(){return this.featureCoordinateSpace;}
 	
 	public class WrappedIterator implements CloseableIterator<T>{
 
@@ -135,7 +124,6 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 		}
 	}
 
-	@Override
 	public void writeToFile(String fileName, Annotation region) {
 		try{writeToFile(fileName, sortedIterator(region, false));
 		}catch(IOException ex){ex.printStackTrace();}

@@ -27,6 +27,8 @@ import annotation.SAMFragment;
  */
 public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<PairedMappedFragment<SAMFragment>>{
 
+	//TODO Override coordinate conversion by converting the single reads and then parsing this BAM file into the paired fragment
+	
 	private static final String extension=".pe.bam";
 	private static final String ALIGNMENT_CIGAR = "aC";
 	private static final String MATE_CIGAR = "mC";
@@ -38,11 +40,21 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 	public BAMPairedFragmentCollection(File bamFile){
 		//Step 1: Initialize a Picard BAM Reader, represents reads
 		reads=new BAMSingleReadCollection(bamFile);
-		this.fragmentFile=makeFragmentFile(bamFile);
+		this.fragmentFile=makeFragmentFile(bamFile.getAbsolutePath());
 	}
 	
-	private File makeFragmentFile(File bamFile) {
-		String baseName=bamFile.getName().split(".bam")[0];
+	public BAMPairedFragmentCollection(BAMSingleReadCollection reads){
+		this.reads=reads;
+		this.fragmentFile=makeFragmentFile();
+	}
+	
+	private File makeFragmentFile() {
+		String name=System.currentTimeMillis()+"_temp";
+		return makeFragmentFile(name);
+	}
+
+	private File makeFragmentFile(String bamFile) {
+		String baseName=bamFile.split(".bam")[0];
 		File file=new File(baseName+extension);
 		file.deleteOnExit(); //TODO We might want to cache this, but we need to figure out how to make sure the files are in sync
 		return file;
@@ -76,7 +88,7 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 	/**
 	 * Convert the paired sam fragment to a custom SAM line to write
 	 * @param pair the pair of SAM reads to convert
-	 * @param writer The SAM file writer to writ this to
+	 * @param writer The SAM file writer to write this to
 	 */
 	private void convertToCustomSAMFormat(PairedMappedFragment<SAMFragment> pair, SAMFileWriter writer) {
 		SAMRecord fragment=convertToCustomSAMFormat(pair);
@@ -237,12 +249,10 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 
 		}}
 	
-	@Override
 	public void writeToFile(String fileName) {
 		writeToFile(fileName, sortedIterator());
 	}
 
-	@Override
 	public void writeToFile(String fileName, Annotation region) {
 		writeToFile(fileName, sortedIterator(region, false));
 	}
@@ -268,12 +278,6 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 		return reads.getReferenceCoordinateSpace();
 	}
 
-	@Override
-	public CoordinateSpace getFeatureCoordinateSpace() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("TODO");
-	}
-
 	public SAMFileHeader getFileHeader() {
 		return reads.getFileHeader();
 	}
@@ -295,21 +299,18 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 		
 		@Override
 		public CloseableIterator<PairedMappedFragment<SAMFragment>> sortedIterator() {
-			return new FilteredIterator<PairedMappedFragment<SAMFragment>>(new WrappedIterator(reader.iterator()), getFilters());
+			return new FilteredIterator<PairedMappedFragment<SAMFragment>>(new WrappedIterator(reader), getFilters());
 		}
 
 		@Override
 		public CloseableIterator<PairedMappedFragment<SAMFragment>> sortedIterator(Annotation region, boolean fullyContained) {
-			SAMRecordIterator iter=reader.queryOverlapping(region.getReferenceName(), region.getReferenceStartPosition(), region.getReferenceEndPosition());
-			return new FilteredIterator<PairedMappedFragment<SAMFragment>>(new WrappedIterator(iter), getFilters());
+			return new FilteredIterator<PairedMappedFragment<SAMFragment>>(new WrappedIterator(reader, region), getFilters());
 		}
 
-		@Override
 		public void writeToFile(String fileName) {
 			writeToFile(fileName, sortedIterator());
 		}
 
-		@Override
 		public void writeToFile(String fileName, Annotation region) {
 			writeToFile(fileName, sortedIterator(region, false));
 		}
@@ -342,10 +343,14 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 
 			SAMRecordIterator iter;
 			
-			public WrappedIterator(SAMRecordIterator iter){
-				this.iter=iter;
+			public WrappedIterator(SAMFileReader reader){
+				this.iter=reader.iterator();
 			}
 			
+			public WrappedIterator(SAMFileReader reader, Annotation region) {
+				this.iter=reader.queryOverlapping(region.getReferenceName(), region.getReferenceStartPosition()+1, region.getReferenceEndPosition());
+			}
+
 			@Override
 			public boolean hasNext() {
 				return iter.hasNext();
@@ -417,4 +422,9 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 			public void close() {iter.close();}
 		}
 	}	
+	
+	public BAMPairedFragmentCollection convert(AnnotationCollection<? extends Annotation> features, boolean fullyContained){
+		//TODO This needs to be rewritten directly use the paired end iterator to write to disk
+		return new BAMPairedFragmentCollection(this.reads.convert(features, fullyContained));
+	} 
 }
