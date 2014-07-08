@@ -5,7 +5,7 @@ import annotation.SAMFragment;
 import org.apache.commons.collections15.Predicate;
 
 /**
- * A class that evaluates whether the read has an Indel or other not spliced or contiguous mapping
+ * A class that evaluates whether the read has an Indel
  * @author mguttman
  *
  * @param <T> which extends a SAMFragment

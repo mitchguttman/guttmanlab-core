@@ -163,6 +163,38 @@ public class SAMFragment extends AbstractAnnotation implements MappedFragment{
 	private Collection<? extends ReadFlag> parseFlags() {
 		throw new UnsupportedOperationException("TODO");
 	}
+
+	/**
+	 * @return whether this read is part of a pair
+	 */
+	public boolean isPaired() {
+		return record.getReadPairedFlag();
+	}
+
+	/**
+	 * @return The location of the alignment start of the mate
+	 */
+	public int getMateReferenceStart() {
+		return record.getMateAlignmentStart()-1;
+	}
+
+	/**
+	 * The reference of the mate
+	 * @return
+	 */
+	public String getMateReferenceName() {
+		return record.getMateReferenceName();
+	}
+
+	public Object getReadOrientation() {
+		if(this.getSamRecord().getReadNegativeStrandFlag()){return Strand.NEGATIVE;}
+		return Strand.POSITIVE;
+	}
+
+	@Override
+	public void setOrientation(Strand orientation) {
+		//Empty implementation since defined by parts
+	}
 	
 	//TODO For intersect, merge, and convert --> override and add all ReadFlags to the new object
 }

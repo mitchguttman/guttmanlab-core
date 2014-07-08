@@ -153,7 +153,9 @@ public class BlockedAnnotation extends AbstractAnnotation {
 		return this.numBlocks;
 	}
 	
+	//TODO This could actually go in the AbstractAnnotation
 	public int getRelativePositionFrom5PrimeOfFeature(int referenceStart){
+		if(referenceStart>=this.getReferenceEndPosition() || referenceStart<this.getReferenceStartPosition()){return -1;} //This start position is past the feature
 		Iterator<SingleInterval> iter=this.blocks.overlappingValueIterator(this.getReferenceStartPosition(), referenceStart);
 		int relativeSize=0;
 		while(iter.hasNext()){
@@ -182,5 +184,10 @@ public class BlockedAnnotation extends AbstractAnnotation {
 		}
 		else{interval=new BlockedAnnotation(new SingleInterval(getName(), featureStart, featureEnd));}
 		return interval;
+	}
+
+	@Override
+	public void setOrientation(Strand orientation) {
+		this.orientation=orientation;
 	}
 }

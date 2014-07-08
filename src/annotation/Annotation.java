@@ -2,6 +2,9 @@ package annotation;
 
 import java.util.Iterator;
 
+import annotation.Annotation.Strand;
+import net.sf.samtools.SAMRecord;
+
 /**
  * 
  * @author prussell
@@ -124,7 +127,7 @@ public interface Annotation {
 	 * @param other Another annotation
 	 * @return A new annotation representing the overlapping regions of the 2 annotations
 	 */
-	public BlockedAnnotation intersect(Annotation other);
+	public Annotation intersect(Annotation other);
 	
 	/**
 	 * Get blocks in the alignment
@@ -164,12 +167,25 @@ public interface Annotation {
 	 * @param region In reference space
 	 * @return Region in Feature space
 	 */
-	public BlockedAnnotation convertToFeatureSpace(SingleInterval region);
+	public Annotation convertToFeatureSpace(Annotation region);
 	
 	/**
 	 * Get the relative coordinate in feature space relative to the 5' of the feature
 	 * @param referenceStart Reference position
-	 * @return Feature position (from 5' start)
+	 * @return Feature position (from 5' start) or -1 if doesn't overlap
 	 */
 	public int getRelativePositionFrom5PrimeOfFeature(int referenceStart);
+	
+	/**
+	 * Return the CIGAR string representation of the annotation
+	 * @return CIGAR format
+	 */
+	public String getCigarString();
+
+	/**
+	 * Set the orientation of this feature
+	 * @param orientation
+	 */
+	public void setOrientation(Strand orientation);
+
 }

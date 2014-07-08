@@ -2,6 +2,8 @@ package annotation;
 
 import java.util.Iterator;
 
+import net.sf.samtools.SAMRecord;
+
 /**
  * An abstract class that implements many of the shared features of an annotation
  * @author mguttman
@@ -10,7 +12,7 @@ import java.util.Iterator;
 public abstract class AbstractAnnotation implements Annotation {
 
 	@Override
-	public BlockedAnnotation intersect(Annotation other) {
+	public Annotation intersect(Annotation other) {
 		BlockedAnnotation rtrn=new BlockedAnnotation();
 		Iterator<SingleInterval> blocks1=getBlocks();
 		while(blocks1.hasNext()){
@@ -143,14 +145,63 @@ public abstract class AbstractAnnotation implements Annotation {
 		return getReferenceName()+":"+getReferenceStartPosition()+"-"+getReferenceEndPosition();
 	}
 	
-	public BlockedAnnotation convertToFeatureSpace(SingleInterval region){
-		int featureStart=getRelativePositionFrom5PrimeOfFeature(region.getReferenceStartPosition());
-		int featureEnd=getRelativePositionFrom5PrimeOfFeature(region.getReferenceEndPosition());
-		BlockedAnnotation interval;
-		if(getOrientation().equals(Strand.NEGATIVE)){
-			interval=new BlockedAnnotation(new SingleInterval(getName(), featureEnd, featureStart));
+	public Annotation convertToFeatureSpace(Annotation region){
+		//Ensure that region overlaps feature
+		if(overlaps(region)){
+			int featureStart=getRelativePositionFrom5PrimeOfFeature(region.getReferenceStartPosition());
+			int featureEnd=getRelativePositionFrom5PrimeOfFeature(region.getReferenceEndPosition());
+			Annotation interval;
+			if(featureStart>-1 && featureEnd>-1){
+				if(getOrientation().equals(Strand.NEGATIVE)){
+					interval=new SingleInterval(getName(), featureEnd, featureStart); //TODO Check strand orientation
+				}
+				else{interval=new SingleInterval(getName(), featureStart, featureEnd);}
+				return interval;
+			}
 		}
-		else{interval=new BlockedAnnotation(new SingleInterval(getName(), featureStart, featureEnd));}
-		return interval;
+		return null;
 	}
+	
+	public Annotation convertToReferenceSpace(Annotation featureAnnotation){
+		//TODO Implement for negative strand
+		BlockedAnnotation rtrn=new BlockedAnnotation();
+		Iterator<SingleInterval> blocks=getBlocks();
+		int sumBlocks=0;
+		while(blocks.hasNext()){
+			SingleInterval block=blocks.next();
+			SingleInterval featureSpaceBlock=new SingleInterval(getName(), sumBlocks, sumBlocks+block.size());
+			if(featureAnnotation.overlaps(featureSpaceBlock)){
+				//trim it, add it
+				if(featureSpaceBlock.getReferenceStartPosition()<featureAnnotation.getReferenceStartPosition()){
+					featureSpaceBlock=new SingleInterval(getName(), featureAnnotation.getReferenceStartPosition(), featureSpaceBlock.getReferenceEndPosition());
+				}
+				if(featureSpaceBlock.getReferenceEndPosition()>featureAnnotation.getReferenceEndPosition()){
+					featureSpaceBlock=new SingleInterval(getName(), featureSpaceBlock.getReferenceStartPosition(), featureAnnotation.getReferenceEndPosition());
+				}
+				rtrn.addBlock(featureSpaceBlock);
+			}
+			sumBlocks=sumBlocks+block.size();
+		}
+		return rtrn;
+		
+	}
+	
+	@Override
+	public String getCigarString(){
+		Iterator<SingleInterval> blocks=getBlocks();
+		String cigar="";
+		
+		int lastEnd=-1;
+		while(blocks.hasNext()){
+			SingleInterval block=blocks.next();
+			if(lastEnd>0){
+				int distance=block.getReferenceStartPosition()-lastEnd;
+				cigar+=distance+"N";
+			}
+			cigar+=block.size()+"M";
+			lastEnd=block.getReferenceEndPosition();
+		}
+		return cigar;
+	}
+	
 }

@@ -108,5 +108,10 @@ public class PairedMappedFragment<T extends MappedFragment> extends AbstractAnno
 		throw new UnsupportedOperationException("TODO");
 	}
 
+	@Override
+	public void setOrientation(Strand orientation) {
+		// Empty method
+	}
+
 	
 }

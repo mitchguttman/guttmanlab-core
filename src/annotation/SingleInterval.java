@@ -90,12 +90,19 @@ public class SingleInterval extends AbstractAnnotation{
 	}
 
 	@Override
+	//TODO This should be merged with BlockedAnnotation
 	public int getRelativePositionFrom5PrimeOfFeature(int referenceStart) {
+		if(referenceStart>=this.getReferenceEndPosition() || referenceStart<this.getReferenceStartPosition()){return -1;} //This start position is past the feature
 		int relative=referenceStart-getReferenceStartPosition();
 		if(getOrientation().equals(Strand.NEGATIVE)){
 			relative=size()-relative;
 		}
 		return relative;
+	}
+
+	@Override
+	public void setOrientation(Strand orientation) {
+		this.orientation=orientation;
 	}
 
 	
