@@ -67,11 +67,19 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 	public <X extends Annotation> Collection<DerivedAnnotation<X>> convertCoordinates(X annotation, boolean fullyContained){
 		//Check if annotation is in Reference or Feature space
 		
-		//If in Reference space
-		return convertFromReference(annotation, fullyContained);
+		if(getReferenceCoordinateSpace().contains(annotation)){
+			//If in Reference space
+			return convertFromReference(annotation, fullyContained);
+		}
 		
-		//If in Feature space
-		return convertFromFeature(annotation, fullyContained);
+		else if(getFeatureCoordinateSpace().contains(annotation)){
+			//If in Feature space
+			return convertFromFeature(annotation, fullyContained);
+		}
+		
+		else{
+			throw new IllegalArgumentException(annotation.getReferenceName()+":"+annotation.getReferenceStartPosition()+"-"+annotation.getReferenceEndPosition()+" annotation is not mapped to either Reference or Feature space");
+		}
 		
 	}
 	
@@ -135,7 +143,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		CloseableIterator<T> iter=sortedIterator();
 		while(iter.hasNext()){
 			T ann=iter.next();
-			writer.addAlignment(ann.getSAMRecord());
+			writer.addAlignment(ann.getSamRecord());
 		}
 		writer.close();
 		iter.close();

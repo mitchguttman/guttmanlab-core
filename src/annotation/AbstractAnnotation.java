@@ -204,4 +204,9 @@ public abstract class AbstractAnnotation implements Annotation {
 		return cigar;
 	}
 	
+	@Override
+	public SAMRecord getSamRecord(){
+		throw new UnsupportedOperationException();
+	}
+	
 }

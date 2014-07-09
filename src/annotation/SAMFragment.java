@@ -73,6 +73,7 @@ public class SAMFragment extends AbstractAnnotation implements MappedFragment{
 	 * Return the SAM Record object
 	 * @return Original SAMRecord object
 	 */
+	@Override
 	public SAMRecord getSamRecord() {
 		return record;
 	}

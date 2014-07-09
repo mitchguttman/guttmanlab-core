@@ -170,6 +170,13 @@ public interface Annotation {
 	public Annotation convertToFeatureSpace(Annotation region);
 	
 	/**
+	 * Convert this region from feature space into reference space
+	 * @param featureAnnotation In feature space
+	 * @return Region in reference space
+	 */
+	public Annotation convertToReferenceSpace(Annotation featureAnnotation);
+	
+	/**
 	 * Get the relative coordinate in feature space relative to the 5' of the feature
 	 * @param referenceStart Reference position
 	 * @return Feature position (from 5' start) or -1 if doesn't overlap
@@ -188,4 +195,10 @@ public interface Annotation {
 	 */
 	public void setOrientation(Strand orientation);
 
+	/**
+	 * Returns this Annotation as a SAMRecord
+	 * @return A SAMRecord representation of this annotation
+	 */
+	public SAMRecord getSamRecord();
+	
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import annotation.Annotation;
 import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMSequenceRecord;
 
@@ -38,6 +39,20 @@ public class CoordinateSpace {
 	
 	public CoordinateSpace(SAMFileHeader fileHeader) {
 		this.refSizes=getRefSeqLengthsFromSamHeader(fileHeader);
+	}
+	
+	/**
+	 * Tests whether a region is present within this CoordinateSpace
+	 * @param annotation The annotation to test
+	 * @return boolean true=contained in space, false=not contained
+	 */
+	public boolean contains(Annotation annotation){
+		//Is contained if annotation.getReferenceName() is in references and positions are within size
+		if(this.refSizes.containsKey(annotation.getReferenceName())){
+			int size=refSizes.get(annotation.getReferenceName());
+			if(annotation.getReferenceEndPosition()<size){return true;}
+		}
+		return false;
 	}
 
 	@Override

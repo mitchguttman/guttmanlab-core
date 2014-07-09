@@ -117,7 +117,7 @@ public class BAMSingleReadCollection extends AbstractAnnotationCollection<SAMFra
 		SAMFragment read1=findRead(alignment, fragment.getName());;
 		
 		SAMRecordIterator mate=this.reader.queryAlignmentStart(fragment.getSamRecord().getReferenceName(), fragment.getSamRecord().getMateAlignmentStart());
-		SAMFragment read2=findRead(mate, fragment.getName());;
+		SAMFragment read2=findRead(mate, fragment.getName());
 		
 		PairedMappedFragment<SAMFragment> rtrn=new PairedMappedFragment<SAMFragment>(read1, read2);
 		return rtrn;
