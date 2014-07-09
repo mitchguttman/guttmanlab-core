@@ -2,6 +2,7 @@ package annotation;
 
 import java.util.Iterator;
 
+import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMRecord;
 
 /**
@@ -210,8 +211,14 @@ public abstract class AbstractAnnotation implements Annotation {
 	}
 	
 	@Override
-	public SAMRecord getSamRecord(){
-		throw new UnsupportedOperationException();
+	public SAMRecord getSamRecord(SAMFileHeader header){
+		SAMRecord record=new SAMRecord(header);
+		record.setAlignmentStart(getReferenceStartPosition()+1);
+		record.setCigarString(getCigarString());
+		record.setReferenceName(getReferenceName());
+		record.setReadName(getName());
+		record.setReadNegativeStrandFlag(getOrientation().equals(Strand.NEGATIVE));
+		return record;
 	}
 	
 }

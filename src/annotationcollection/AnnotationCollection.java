@@ -92,8 +92,8 @@ public interface AnnotationCollection<T extends Annotation> {
 	 * @param fullyContained whether to only convert a fragment if it is fully within the feature (true) or return the trimmed partial (false)
 	 * @return An iterator of annotations in the new feature space (A window object but really can be anything with hasParent())
 	 */
-	public <X extends Annotation> CloseableIterator<DerivedAnnotation<X>> convertCoordinates(CloseableIterator<X> annotations, CoordinateSpace referenceSpaceForAnnotations, boolean fullyContained);
-	
+	public <X extends Annotation> AnnotationCollection<DerivedAnnotation<X>> convertCoordinates(AnnotationCollection<X> readCollection, CoordinateSpace referenceSpaceForAnnotations, boolean fullyContained);
+		
 	/**
 	 * Get an iterator over all windows of size widowLength overlapping a region
 	 * @param region The region to scan
@@ -102,11 +102,5 @@ public interface AnnotationCollection<T extends Annotation> {
 	 */
 	public CloseableIterator<? extends Window<T>> getWindows(Annotation region, int windowLength);
 	
-	/**
-	 * Converts a single annotation
-	 * @param annotation The annotation to convert
-	 * @param fullyContained Whether to only return fully contained values
-	 * @return Converted annotations
-	 */
-	public <X extends Annotation> Collection<DerivedAnnotation<X>> convertCoordinates(X annotation, boolean fullyContained);
+
 }

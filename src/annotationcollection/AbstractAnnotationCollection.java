@@ -9,6 +9,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.collections15.Predicate;
 
+import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMFileWriter;
 import net.sf.samtools.SAMFileWriterFactory;
 import net.sf.samtools.util.CloseableIterator;
@@ -54,69 +55,16 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 	}
 
 	@Override
-	public <X extends Annotation> CloseableIterator<DerivedAnnotation<X>> convertCoordinates(CloseableIterator<X> annotations, CoordinateSpace referenceSpaceForAnnotations, boolean fullyContained){
+	public <X extends Annotation> AnnotationCollection<DerivedAnnotation<X>> convertCoordinates(AnnotationCollection<X> readCollection, CoordinateSpace referenceSpaceForAnnotations, boolean fullyContained){
 		//TODO Should check the coordinate space and convert appropriately
-		return convertFromReferenceSpace(annotations, fullyContained);
+		return convertFromReferenceSpace(readCollection, referenceSpaceForAnnotations, fullyContained);
 	}
 
-	//TODO We should consider what to do with partial overlaps here
-	private <X extends Annotation> CloseableIterator<DerivedAnnotation<X>> convertFromReferenceSpace(CloseableIterator<? extends Annotation> iterator, boolean fullyContained){
-		return new CoordinateConverterIterator(iterator, this, fullyContained);
+	private <X extends Annotation> AnnotationCollection<DerivedAnnotation<X>> convertFromReferenceSpace(AnnotationCollection<X> readCollection, CoordinateSpace referenceSpace, boolean fullyContained){
+		return new ConvertedSpace<X>(readCollection, this, referenceSpace, fullyContained);
 	}
 
-	public <X extends Annotation> Collection<DerivedAnnotation<X>> convertCoordinates(X annotation, boolean fullyContained){
-		//Check if annotation is in Reference or Feature space
-		
-		if(getReferenceCoordinateSpace().contains(annotation)){
-			//If in Reference space
-			return convertFromReference(annotation, fullyContained);
-		}
-		
-		else if(getFeatureCoordinateSpace().contains(annotation)){
-			//If in Feature space
-			return convertFromFeature(annotation, fullyContained);
-		}
-		
-		else{
-			throw new IllegalArgumentException(annotation.getReferenceName()+":"+annotation.getReferenceStartPosition()+"-"+annotation.getReferenceEndPosition()+" annotation is not mapped to either Reference or Feature space");
-		}
-		
-	}
 	
-	private <X extends Annotation> Collection<DerivedAnnotation<X>> convertFromFeature(X featureAnnotation, boolean fullyContained){
-		Collection<DerivedAnnotation<X>> rtrn=new ArrayList<DerivedAnnotation<X>>();
-		CloseableIterator<T> iter=sortedIterator();
-		while(iter.hasNext()){
-			T referenceAnnotation=iter.next();
-			if(referenceAnnotation.getName().equals(featureAnnotation.getName())){
-				//if the names are the same then it is the same feature
-				//trim to relative start and end
-				Annotation a=referenceAnnotation.convertToReferenceSpace(featureAnnotation);
-				DerivedAnnotation<X> dA=new DerivedAnnotation<X>(a, featureAnnotation);
-				rtrn.add(dA);
-			}
-		}
-		return rtrn;
-	}
-	
-	private <X extends Annotation> Collection<DerivedAnnotation<X>> convertFromReference(X annotation, boolean fullyContained){
-		Collection<DerivedAnnotation<X>> rtrn=new ArrayList<DerivedAnnotation<X>>();
-
-		//Find features overlapping the annotation
-		CloseableIterator<? extends Annotation> iter=sortedIterator(annotation, fullyContained);
-
-		//Adjust the coordinates of the feature as needed in featureSpace (ie as distance from start and end)
-		while(iter.hasNext()){
-			Annotation feature=iter.next();
-			Annotation intersect=feature.intersect(annotation); 
-			if(intersect.size()>0){
-				Annotation interval=feature.convertToFeatureSpace(intersect);
-				DerivedAnnotation<X> dInterval=new DerivedAnnotation<X>(interval, annotation);
-				rtrn.add(dInterval);
-			}
-		}
-		return rtrn;
-	}
 	
 	@Override
 	public CloseableIterator<? extends Window<T>> getWindows(Annotation region, int windowLength){
@@ -138,12 +86,13 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 	
 	@Override
 	public void writeToBAM(String fileName){
-		SAMFileWriter writer=new SAMFileWriterFactory().setCreateIndex(true).makeSAMOrBAMWriter(getReferenceCoordinateSpace().getBAMFileHeader(), false, new File(fileName));
+		SAMFileHeader header=getReferenceCoordinateSpace().getBAMFileHeader();
+		SAMFileWriter writer=new SAMFileWriterFactory().setCreateIndex(true).makeSAMOrBAMWriter(header, false, new File(fileName));
 			
 		CloseableIterator<T> iter=sortedIterator();
 		while(iter.hasNext()){
 			T ann=iter.next();
-			writer.addAlignment(ann.getSamRecord());
+			writer.addAlignment(ann.getSamRecord(header));
 		}
 		writer.close();
 		iter.close();
@@ -236,57 +185,6 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 
 	}
 
-
-	public class CoordinateConverterIterator<X extends Annotation> implements CloseableIterator<DerivedAnnotation<X>>{
-
-		CloseableIterator<X> iter;
-		Iterator<DerivedAnnotation<X>> next;
-		boolean started;
-		AnnotationCollection<? extends Annotation> mapping;
-		boolean fullyContained;
-
-		public CoordinateConverterIterator(CloseableIterator<X> iterator, AnnotationCollection<? extends Annotation> mapping, boolean fullyContained){
-			this.iter=iterator;
-			this.started=false;
-			this.mapping=mapping;
-			this.fullyContained=fullyContained;
-		}
-
-		@Override
-		public boolean hasNext() {
-			if((!started || !next.hasNext()) && iter.hasNext()){
-				started=true;
-				findNext();
-				return hasNext();
-			}
-			if(next.hasNext()){
-				return true;
-			}
-
-			return false;
-		}
-
-		private void findNext() {
-			X annotation=iter.next();
-			this.next=convertCoordinates(annotation, fullyContained).iterator();
-		}
-
-		@Override
-		public DerivedAnnotation<X> next() {
-			return next.next();
-		}
-
-		@Override
-		public void remove() {
-			this.iter.remove();
-		}
-
-		@Override
-		public void close() {
-			this.iter.close();
-
-		}}
-
 	public CoordinateSpace getFeatureCoordinateSpace(){
 		//Iterate through all records
 		CloseableIterator<T> iter=sortedIterator();
@@ -297,7 +195,10 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 			String name=annotation.getName();
 			sizes.put(name, size);
 		}
+		iter.close();
 		return new CoordinateSpace(sizes);
 	}
+	
+	
 	
 }

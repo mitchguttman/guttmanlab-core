@@ -1,5 +1,9 @@
 package annotation;
 
+import annotation.Annotation.Strand;
+import net.sf.samtools.SAMFileHeader;
+import net.sf.samtools.SAMRecord;
+
 /**
  * Represents an annotation that was derived from another Annotation
  * @author mguttman

@@ -8,6 +8,7 @@ import annotation.predicate.ReadFlag;
 import net.sf.samtools.Cigar;
 import net.sf.samtools.CigarElement;
 import net.sf.samtools.CigarOperator;
+import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.TextCigarCodec;
 
@@ -74,10 +75,13 @@ public class SAMFragment extends AbstractAnnotation implements MappedFragment{
 	 * @return Original SAMRecord object
 	 */
 	@Override
-	public SAMRecord getSamRecord() {
+	public SAMRecord getSamRecord(SAMFileHeader header) {
 		return record;
 	}
 	
+	public SAMRecord getSamRecord(){
+		return record;
+	}
 	
 	 /**
      * Populate the blocks from a Cigar string

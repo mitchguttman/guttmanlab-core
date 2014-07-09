@@ -423,8 +423,8 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 		}
 	}	
 	
-	public BAMPairedFragmentCollection convert(AnnotationCollection<? extends Annotation> features, boolean fullyContained){
+	/*public BAMPairedFragmentCollection convert(AnnotationCollection<? extends Annotation> features, boolean fullyContained){
 		//TODO This needs to be rewritten directly use the paired end iterator to write to disk
 		return new BAMPairedFragmentCollection(this.reads.convert(features, fullyContained));
-	} 
+	} */
 }

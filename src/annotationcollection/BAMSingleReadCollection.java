@@ -39,12 +39,13 @@ public class BAMSingleReadCollection extends AbstractAnnotationCollection<SAMFra
 
 	@Override
 	public CloseableIterator<SAMFragment> sortedIterator() {
-		return new FilteredIterator<SAMFragment>(new WrappedIterator(reader), getFilters());
+		return new FilteredIterator<SAMFragment>(new WrappedIterator(reader.iterator()), getFilters());
 	}
 
 	@Override
 	public CloseableIterator<SAMFragment> sortedIterator(Annotation region, boolean fullyContained) {
-		return new FilteredIterator<SAMFragment>(new WrappedIterator(reader, region), getFilters());
+		SAMRecordIterator iter=reader.queryOverlapping(region.getReferenceName(), region.getReferenceStartPosition()+1, region.getReferenceEndPosition());
+		return new FilteredIterator<SAMFragment>(new WrappedIterator(iter), getFilters());
 	}
 
 	//TODO Consider whether to delete
@@ -73,13 +74,8 @@ public class BAMSingleReadCollection extends AbstractAnnotationCollection<SAMFra
 
 		SAMRecordIterator iter;
 		
-		public WrappedIterator(SAMFileReader reader){
-			this.iter=reader.iterator();
-		}
-		
-		public WrappedIterator(SAMFileReader reader, Annotation region) {
-			this.iter=reader.queryOverlapping(region.getReferenceName(), region.getReferenceStartPosition()+1, region.getReferenceEndPosition());
-			
+		public WrappedIterator(SAMRecordIterator iter){
+			this.iter=iter;
 		}
 
 		@Override
@@ -136,7 +132,7 @@ public class BAMSingleReadCollection extends AbstractAnnotationCollection<SAMFra
 		return rtrn;
 	}
 	
-	public BAMSingleReadCollection convert(AnnotationCollection<? extends Annotation> features, boolean fullyContained){
+	/*public BAMSingleReadCollection convert(AnnotationCollection<? extends Annotation> features, boolean fullyContained){
 		//Setup BAM File Writer
 		CoordinateSpace space=features.getFeatureCoordinateSpace();
 		SAMFileHeader header=space.getBAMFileHeader();
@@ -191,7 +187,7 @@ public class BAMSingleReadCollection extends AbstractAnnotationCollection<SAMFra
 			}
 		}
 		return rtrn;			
-	}
+	}*/
 
 	private Strand getOrientation(SAMFragment original, Annotation feature) {
 		Strand orientation;

@@ -3,6 +3,7 @@ package annotation;
 import java.util.Iterator;
 
 import annotation.Annotation.Strand;
+import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMRecord;
 
 /**
@@ -199,6 +200,6 @@ public interface Annotation {
 	 * Returns this Annotation as a SAMRecord
 	 * @return A SAMRecord representation of this annotation
 	 */
-	public SAMRecord getSamRecord();
+	public SAMRecord getSamRecord(SAMFileHeader header);
 	
 }
