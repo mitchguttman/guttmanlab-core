@@ -163,13 +163,18 @@ public abstract class AbstractAnnotation implements Annotation {
 	}
 	
 	public Annotation convertToReferenceSpace(Annotation featureAnnotation){
-		//TODO Implement for negative strand
 		BlockedAnnotation rtrn=new BlockedAnnotation();
-		Iterator<SingleInterval> blocks=getBlocks();
+		Iterator<SingleInterval> blocks = getBlocks();
 		int sumBlocks=0;
+	
 		while(blocks.hasNext()){
 			SingleInterval block=blocks.next();
 			SingleInterval featureSpaceBlock=new SingleInterval(getName(), sumBlocks, sumBlocks+block.size());
+
+			if(getOrientation().equals(Strand.NEGATIVE))
+			{
+				featureSpaceBlock= new SingleInterval(getName(), featureAnnotation.size()-(sumBlocks+block.size()),featureAnnotation.size()-sumBlocks);
+			}
 			if(featureAnnotation.overlaps(featureSpaceBlock)){
 				//trim it, add it
 				if(featureSpaceBlock.getReferenceStartPosition()<featureAnnotation.getReferenceStartPosition()){
