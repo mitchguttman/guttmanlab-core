@@ -2,10 +2,7 @@ package annotationcollection;
 
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
 
-import sequence.Sequence;
 import coordinatespace.CoordinateSpace;
 import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMFileReader;
@@ -15,11 +12,8 @@ import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMRecordIterator;
 import net.sf.samtools.util.CloseableIterator;
 import annotation.Annotation;
-import annotation.Annotation.Strand;
-import annotation.DerivedAnnotation;
 import annotation.PairedMappedFragment;
 import annotation.SAMFragment;
-import annotation.SingleInterval;
 
 /**
  * This class represents a single-end read collection
@@ -187,7 +181,7 @@ public class BAMSingleReadCollection extends AbstractAnnotationCollection<SAMFra
 			}
 		}
 		return rtrn;			
-	}*/
+	}
 
 	private Strand getOrientation(SAMFragment original, Annotation feature) {
 		Strand orientation;
@@ -239,5 +233,5 @@ public class BAMSingleReadCollection extends AbstractAnnotationCollection<SAMFra
 		else{record.setMateUnmappedFlag(true);}
 		
 		return record;
-	}
+	}*/
 }

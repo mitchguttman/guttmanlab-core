@@ -7,7 +7,10 @@ import java.util.Iterator;
 import net.sf.samtools.util.CloseableIterator;
 import coordinatespace.CoordinateSpace;
 import annotation.Annotation;
+import annotation.BlockedAnnotation;
 import annotation.DerivedAnnotation;
+import annotation.SingleInterval;
+import annotation.Annotation.Strand;
 
 public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationCollection<DerivedAnnotation<T>>{
 
@@ -46,7 +49,6 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 		}
 		
 		else if(featureMapping.getFeatureCoordinateSpace().contains(annotation)){
-			System.err.println(annotation.getReferenceName());
 			//If in Feature space
 			return convertFromFeature(annotation, fullyContained);
 		}
@@ -62,8 +64,8 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 		CloseableIterator<? extends Annotation> iter=featureMapping.sortedIterator();
 		while(iter.hasNext()){
 			Annotation referenceAnnotation=iter.next();
-			if(referenceAnnotation.getName().equals(featureAnnotation.getName())){
-				//if the names are the same then it is the same feature
+			//if the names are the same then it is the same feature
+			if(referenceAnnotation.getName().equals(featureAnnotation.getReferenceName())){
 				//trim to relative start and end
 				Annotation a=referenceAnnotation.convertToReferenceSpace(featureAnnotation);
 				DerivedAnnotation<X> dA=new DerivedAnnotation<X>(a, featureAnnotation);
@@ -73,6 +75,9 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 		iter.close();
 		return rtrn;
 	}
+	
+	
+	
 	
 	private <X extends Annotation> Collection<DerivedAnnotation<X>> convertFromReference(X annotation, boolean fullyContained){
 		Collection<DerivedAnnotation<X>> rtrn=new ArrayList<DerivedAnnotation<X>>();

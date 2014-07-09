@@ -2,6 +2,7 @@ package annotation;
 
 import java.util.Iterator;
 
+import annotation.Annotation.Strand;
 import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMRecord;
 
@@ -167,24 +168,29 @@ public abstract class AbstractAnnotation implements Annotation {
 		BlockedAnnotation rtrn=new BlockedAnnotation();
 		Iterator<SingleInterval> blocks = getBlocks();
 		int sumBlocks=0;
-	
+		
 		while(blocks.hasNext()){
 			SingleInterval block=blocks.next();
 			SingleInterval featureSpaceBlock=new SingleInterval(getName(), sumBlocks, sumBlocks+block.size());
 
 			if(getOrientation().equals(Strand.NEGATIVE))
 			{
-				featureSpaceBlock= new SingleInterval(getName(), featureAnnotation.size()-(sumBlocks+block.size()),featureAnnotation.size()-sumBlocks);
+				featureSpaceBlock= new SingleInterval(getName(), size()-(sumBlocks+block.size()),size()-sumBlocks);
 			}
+			
 			if(featureAnnotation.overlaps(featureSpaceBlock)){
 				//trim it, add it
-				if(featureSpaceBlock.getReferenceStartPosition()<featureAnnotation.getReferenceStartPosition()){
-					featureSpaceBlock=new SingleInterval(getName(), featureAnnotation.getReferenceStartPosition(), featureSpaceBlock.getReferenceEndPosition());
+				int shiftStart=0;
+				int shiftEnd=0;
+				if(featureAnnotation.getReferenceStartPosition()> featureSpaceBlock.getReferenceStartPosition()){
+					shiftStart=featureAnnotation.getReferenceStartPosition()-featureSpaceBlock.getReferenceStartPosition();
 				}
-				if(featureSpaceBlock.getReferenceEndPosition()>featureAnnotation.getReferenceEndPosition()){
-					featureSpaceBlock=new SingleInterval(getName(), featureSpaceBlock.getReferenceStartPosition(), featureAnnotation.getReferenceEndPosition());
+				if(featureAnnotation.getReferenceEndPosition()<featureSpaceBlock.getReferenceEndPosition())	{
+					shiftEnd=featureSpaceBlock.getReferenceEndPosition()-featureAnnotation.getReferenceEndPosition();
 				}
-				rtrn.addBlock(featureSpaceBlock);
+				block=block.trim(shiftStart, featureSpaceBlock.size()-shiftEnd);
+				
+				rtrn.addBlock(block);
 			}
 			sumBlocks=sumBlocks+block.size();
 		}

@@ -525,6 +525,10 @@ public class IntervalTree<V>
 	{
 		return new ValuesIterator<V>(iterator());
 	}
+	
+	public Iterator<V> reverseValueIterator(){
+		return new ValuesIterator<V>(reverseIterator());
+	}
 
 	/**
 	 * Return an iterator over all intervals greater than or equal to the specified interval.
