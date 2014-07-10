@@ -5,9 +5,10 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import datastructures.Pair;
+import annotation.Annotation.Strand;
 import annotation.predicate.ReadFlag;
 
-public class PairedMappedFragment<T extends MappedFragment> extends AbstractAnnotation implements MappedFragment{
+public class PairedMappedFragment<T extends Annotation> extends AbstractAnnotation implements MappedFragment{
 
 	private Pair<T> pair;
 	
@@ -111,6 +112,22 @@ public class PairedMappedFragment<T extends MappedFragment> extends AbstractAnno
 	@Override
 	public void setOrientation(Strand orientation) {
 		// Empty method
+	}
+
+	@Override
+	public PairedMappedFragment<? extends Annotation> convert(Annotation feature) {
+		//Ensure that this overlaps the feature
+		if(overlaps(feature)){
+			T read1=this.getRead1();
+			T read2=this.getRead2();
+			Annotation converted1=read1.convert(feature);
+			Annotation converted2=read2.convert(feature);
+			if(converted1!=null && converted2!=null){
+				PairedMappedFragment<? extends Annotation> pair=new PairedMappedFragment<Annotation>(converted1, converted2);
+				return pair;
+			}
+		}
+		return null;
 	}
 
 	

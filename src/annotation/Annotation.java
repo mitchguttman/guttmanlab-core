@@ -164,18 +164,18 @@ public interface Annotation {
 	public String toBED(int r, int g, int b);
 	
 	/**
-	 * Convert this region into the feature space
-	 * @param region In reference space
-	 * @return Region in Feature space
-	 */
-	public Annotation convertToFeatureSpace(Annotation region);
-	
-	/**
-	 * Convert this region from feature space into reference space
-	 * @param featureAnnotation In feature space
+	 * Convert the featureAnnotation from feature space into reference space
+	 * @param featureAnnotation region to convert in feature space
 	 * @return Region in reference space
 	 */
 	public Annotation convertToReferenceSpace(Annotation featureAnnotation);
+	
+	/**
+	 * Convert this annotation to the feature space represented by the feature passed
+	 * @param feature The feature representing the new space
+	 * @return this annotation in the new space
+	 */
+	public Annotation convert(Annotation feature);
 	
 	/**
 	 * Get the relative coordinate in feature space relative to the 5' of the feature

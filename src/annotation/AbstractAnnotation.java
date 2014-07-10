@@ -164,6 +164,23 @@ public abstract class AbstractAnnotation implements Annotation {
 		return null;
 	}
 	
+	public Annotation convert(Annotation feature){
+		//Ensure that region overlaps feature
+		if(overlaps(feature)){
+			int featureStart=feature.getRelativePositionFrom5PrimeOfFeature(getReferenceStartPosition());
+			int featureEnd=feature.getRelativePositionFrom5PrimeOfFeature(getReferenceEndPosition());
+			Annotation interval;
+			if(featureStart>-1 && featureEnd>-1){
+				if(getOrientation().equals(Strand.NEGATIVE)){
+					interval=new SingleInterval(getName(), featureEnd, featureStart);
+				}
+				else{interval=new SingleInterval(getName(), featureStart, featureEnd);}
+				return interval;
+			}
+		}
+		return null;
+	}
+	
 	public Annotation convertToReferenceSpace(Annotation featureAnnotation){
 		BlockedAnnotation rtrn=new BlockedAnnotation();
 		Iterator<SingleInterval> blocks = getBlocks();
