@@ -122,11 +122,15 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		int windowLength;
 		boolean hasNext;
 
-		public WindowIterator(CloseableIterator<T1> iter, int windowLength){
+		public WindowIterator(CloseableIterator<T1> iter, int windowLength, boolean assumeForward){
 			this.iter=iter;
 			this.windowLength=windowLength;
 			this.windows=new IntervalTree<Window<T1>>();
 			this.hasNext=false;
+		}
+		
+		public WindowIterator(CloseableIterator<T1> iter, int windowLength){
+			this(iter, windowLength, true);
 		}
 
 		@Override

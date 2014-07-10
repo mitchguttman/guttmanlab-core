@@ -227,4 +227,36 @@ public abstract class AbstractAnnotation implements Annotation {
 		return record;
 	}
 	
+	public boolean fullyContained(Annotation other){
+		//All blocks in other must be in blocks on this
+		//Go through all blocks2 and check that they are in this
+		Iterator<SingleInterval> blocks2=other.getBlocks();
+		while(blocks2.hasNext()){
+			SingleInterval block2=blocks2.next();
+			boolean isInThis=false;
+			//check that each block2 has some overlap with a block1
+			Iterator<SingleInterval> blocks1=getBlocks();
+			while(blocks1.hasNext()){
+				SingleInterval block1=blocks1.next();
+				if(block1.overlaps(block2)){
+					isInThis=true;
+					if(!fullyContained(block1, block2)){
+						return false;
+					}
+				}
+			}
+			if(!isInThis){return false;} //There are no blocks in this that the block overlapped, cant be fully contained
+		}
+		
+		return true;
+	}
+	
+	private boolean fullyContained(SingleInterval block1, SingleInterval block2){
+		//is only fully contained if block2 is equal to or a subset of block1
+		if(block1.getReferenceStartPosition()<=block2.getReferenceStartPosition() && block1.getReferenceEndPosition()>=block2.getReferenceEndPosition()){
+			return true;
+		}
+		return false;	
+	}
+	
 }

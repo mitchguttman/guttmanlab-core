@@ -89,11 +89,15 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 		while(iter.hasNext()){
 			Annotation feature=iter.next();
 			Annotation intersect=feature.intersect(annotation); 
+			//Is annotation fully contained in feature
+			boolean isFullyContained=feature.fullyContained(annotation);
 			if(intersect.size()>0){
-				Annotation interval=feature.convertToFeatureSpace(intersect);
-				if(interval!=null){
-					DerivedAnnotation<X> dInterval=new DerivedAnnotation<X>(interval, annotation);
-					rtrn.add(dInterval);
+				if(!fullyContained || isFullyContained){
+					Annotation interval=feature.convertToFeatureSpace(intersect);
+					if(interval!=null){
+						DerivedAnnotation<X> dInterval=new DerivedAnnotation<X>(interval, annotation);
+						rtrn.add(dInterval);
+					}
 				}
 			}
 		}
@@ -112,8 +116,7 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 	public CoordinateSpace getFeatureCoordinateSpace() {
 		return featureMapping.getReferenceCoordinateSpace(); //TODO Fix this
 	}
-
-	//TODO Consider how to override Windows()
+	
 	
 	public class CoordinateConverterIterator<X extends Annotation> implements CloseableIterator<DerivedAnnotation<X>>{
 
@@ -145,8 +148,13 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 		}
 
 		private void findNext() {
-			X annotation=iter.next();
-			this.next=convertCoordinates(annotation, fullyContained).iterator();
+			//We should iterate until we either run out of reads or find next
+			boolean done=false;
+			while(iter.hasNext() && !done){
+				X annotation=iter.next();
+				this.next=convertCoordinates(annotation, fullyContained).iterator();
+				if(next.hasNext()){done=true;}
+			}
 		}
 
 		@Override
