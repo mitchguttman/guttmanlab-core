@@ -61,7 +61,7 @@ public class SingleInterval extends AbstractAnnotation{
 		rtrn.add(this);
 		return rtrn.iterator();
 	}
-
+	
 	@Override
 	public int size() {
 		return endPos-startPos;
@@ -103,6 +103,23 @@ public class SingleInterval extends AbstractAnnotation{
 	@Override
 	public void setOrientation(Strand orientation) {
 		this.orientation=orientation;
+	}
+
+	/**
+	 * Trim this block to the relative start and end position provided
+	 * @param relativeStartPosition relative start position
+	 * @param relativeEndPosition relative end position
+	 * @return
+	 */
+	public SingleInterval trim(int relativeStart, int relativeEnd) {
+		if(getOrientation().equals(Strand.NEGATIVE)){
+			int newEnd=getReferenceEndPosition()-relativeStart;
+			int newStart=getReferenceEndPosition()-relativeEnd;
+			return new SingleInterval(getReferenceName(), newStart, newEnd);
+		}
+		else{
+			return new SingleInterval(getReferenceName(), getReferenceStartPosition()+relativeStart, getReferenceStartPosition()+relativeEnd);
+		}
 	}
 
 	

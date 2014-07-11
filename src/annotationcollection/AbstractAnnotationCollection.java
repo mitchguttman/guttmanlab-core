@@ -14,10 +14,8 @@ import net.sf.samtools.SAMFileWriter;
 import net.sf.samtools.SAMFileWriterFactory;
 import net.sf.samtools.util.CloseableIterator;
 import annotation.Annotation;
-import annotation.BlockedAnnotation;
 import annotation.ContiguousWindow;
 import annotation.DerivedAnnotation;
-import annotation.SAMFragment;
 import annotation.SingleInterval;
 import annotation.Window;
 import annotation.Annotation.Strand;
@@ -113,12 +111,19 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		Iterator<Window<T1>> fullyFormedWindows;
 		int windowLength;
 		boolean hasNext;
+		boolean assumeForward;
 
-		public WindowIterator(CloseableIterator<T1> iter, int windowLength){
+		public WindowIterator(CloseableIterator<T1> iter, int windowLength, boolean assumeForward){
 			this.iter=iter;
 			this.windowLength=windowLength;
 			this.windows=new IntervalTree<Window<T1>>();
 			this.hasNext=false;
+			this.assumeForward=assumeForward;
+		}
+		
+		public WindowIterator(CloseableIterator<T1> iter, int windowLength)
+		{
+			this(iter,windowLength,true);
 		}
 
 		@Override
@@ -141,7 +146,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		}
 
 		private void addReadToWindows(T1 read){
-			//Make all windows overlapping read blocks
+			//Create all windows which overlap read blocks
 			Iterator<SingleInterval> interval=read.getBlocks();
 			while(interval.hasNext()){
 				SingleInterval block=interval.next();
@@ -159,7 +164,11 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		}
 
 		private Collection<Window<T1>> removeFullyFormedWindows(T1 read) {
-			Iterator<Window<T1>> iter=windows.getNodesBeforeInterval(read.getReferenceStartPosition(), read.getReferenceStartPosition());
+			Iterator<Window<T1>> iter;
+			if(assumeForward)
+				{iter=windows.getNodesBeforeInterval(read.getReferenceStartPosition(), read.getReferenceStartPosition());}
+			else
+				{iter=windows.getNodesAfterInterval(read.getReferenceStartPosition(), read.getReferenceStartPosition());}
 			Collection<Window<T1>> rtrn=new ArrayList<Window<T1>>();
 			while(iter.hasNext()){
 				Window<T1> w=iter.next();

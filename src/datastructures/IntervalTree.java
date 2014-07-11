@@ -525,6 +525,10 @@ public class IntervalTree<V>
 	{
 		return new ValuesIterator<V>(iterator());
 	}
+	
+	public Iterator<V> reverseValueIterator(){
+		return new ValuesIterator<V>(reverseIterator());
+	}
 
 	/**
 	 * Return an iterator over all intervals greater than or equal to the specified interval.
@@ -631,6 +635,15 @@ public class IntervalTree<V>
 		return new ValuesIterator<V>(reverseIterator(start, end));
 	}
 
+	/**
+	 * Returns an iterator overall intervals greater than or equal to the specified interval, in order
+	 * @param start the interval start
+	 * @param end the interval end
+	 * @return An iterator
+	 */
+	public Iterator<V> getNodesAfterInterval(int start, int end){
+		return new ValuesIterator<V>(iterator(start, end));
+	}
 	/**
 	 * Get the special sentinel value that will be used to signal novelty when putting a new interval
 	 * into the tree, or to signal "not found" when removing an interval.  This is null by default.

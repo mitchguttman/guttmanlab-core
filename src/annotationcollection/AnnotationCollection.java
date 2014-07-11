@@ -72,6 +72,14 @@ public interface AnnotationCollection<T extends Annotation> {
 	public void writeToBAM(String fileName);
 	
 	/**
+	 * Write the reads overlapping this region to a file
+	 * @param fileName The file to write to
+	 * @param region The region to overlap
+	 * @param fullyContained whether to use only reads fully contained in this region (true) or merely overlapping (false)
+	 */
+	public void writeToBAM(String fileName, Annotation region, boolean fullyContained);
+	
+	/**
 	 * @return The reference coordinate space
 	 */
 	public CoordinateSpace getReferenceCoordinateSpace();

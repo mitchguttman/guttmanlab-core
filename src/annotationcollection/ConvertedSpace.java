@@ -7,7 +7,9 @@ import java.util.Iterator;
 import net.sf.samtools.util.CloseableIterator;
 import coordinatespace.CoordinateSpace;
 import annotation.Annotation;
+import annotation.Annotation.Strand;
 import annotation.DerivedAnnotation;
+import annotation.Window;
 
 public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationCollection<DerivedAnnotation<T>>{
 
@@ -52,6 +54,8 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 		}
 		
 		else{
+			System.out.println(featureMapping.getFeatureCoordinateSpace().getRefSeqLengths()+"(feat)");
+			System.out.println(featureMapping.getReferenceCoordinateSpace().getRefSeqLengths()+"(ref)");
 			throw new IllegalArgumentException(annotation.getReferenceName()+":"+annotation.getReferenceStartPosition()+"-"+annotation.getReferenceEndPosition()+" annotation is not mapped to either Reference or Feature space");
 		}
 		
@@ -63,6 +67,7 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 		while(iter.hasNext()){
 			Annotation referenceAnnotation=iter.next();
 			if(referenceAnnotation.getName().equals(featureAnnotation.getName())){
+				System.out.println("HERE");
 				//if the names are the same then it is the same feature
 				//trim to relative start and end
 				Annotation a=referenceAnnotation.convertToReferenceSpace(featureAnnotation);
@@ -109,6 +114,20 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 	}
 
 	//TODO Consider how to override Windows()
+	@Override
+	public CloseableIterator<Window<DerivedAnnotation<T>>> getWindows(Annotation region, int windowLength)
+	{
+		//get read iterator overlapping the feature
+		CloseableIterator<DerivedAnnotation<T>> iter = sortedIterator(region,true); 
+		//pass the read iterator to WindowIterator with boolean set by orientation of the feature
+		CloseableIterator<Window<DerivedAnnotation<T>>> windows;
+		if(region.getOrientation().equals(Strand.NEGATIVE))
+			{windows = new WindowIterator<DerivedAnnotation<T>>(iter,windowLength,false);}
+		else
+			{windows = new WindowIterator<DerivedAnnotation<T>>(iter,windowLength,true);}
+		//return the windowIterator
+		return windows;
+	}
 	
 	public class CoordinateConverterIterator<X extends Annotation> implements CloseableIterator<DerivedAnnotation<X>>{
 
