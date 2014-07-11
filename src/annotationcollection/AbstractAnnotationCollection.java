@@ -84,10 +84,19 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 	
 	@Override
 	public void writeToBAM(String fileName){
+		writeToBAM(fileName, sortedIterator());
+	}
+	
+
+	@Override
+	public void writeToBAM(String fileName, Annotation region, boolean fullyContained){
+		writeToBAM(fileName, sortedIterator(region, fullyContained));
+	}
+	
+	private void writeToBAM(String fileName, CloseableIterator<T> iter){
 		SAMFileHeader header=getReferenceCoordinateSpace().getBAMFileHeader();
 		SAMFileWriter writer=new SAMFileWriterFactory().setCreateIndex(true).makeSAMOrBAMWriter(header, false, new File(fileName));
 			
-		CloseableIterator<T> iter=sortedIterator();
 		while(iter.hasNext()){
 			T ann=iter.next();
 			writer.addAlignment(ann.getSamRecord(header));
