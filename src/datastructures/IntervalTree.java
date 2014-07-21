@@ -93,10 +93,16 @@ public class IntervalTree<V>
 	 * @param value The associated value.
 	 * @return The old value associated with that interval, or the sentinel.
 	 */
-	public V placeInTree( int start, int end, V value )
+	public V placeInTree( int s, int e, V value )
 	{
+		int start = s;
+		int end = e;
 		if ( start > end )
-			throw new IllegalArgumentException("Start cannot exceed end. Start=" + start + "; end="+end);
+		{
+			start = e;
+			end = s;
+			//throw new IllegalArgumentException("Start cannot exceed end. Start=" + start + "; end="+end);
+		}
 
 		V result = mSentinel;
 

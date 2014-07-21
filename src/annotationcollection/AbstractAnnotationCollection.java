@@ -139,9 +139,19 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		public boolean hasNext() {
 			if(fullyFormedWindows!=null && fullyFormedWindows.hasNext()){return true;}
 			else if(iter.hasNext()){updateWindows(); return hasNext();}
+			else if(!iter.hasNext() && !windows.isEmpty())
+			{
+				updateRemainingWindows();
+				return hasNext();
+			}
+			
 			return false;
 		}
 
+		private void updateRemainingWindows(){
+			fullyFormedWindows = windows.valueIterator();
+			windows = new IntervalTree<Window<T1>>();
+		}
 		@Override
 		public Window<T1> next() {
 			return fullyFormedWindows.next();
@@ -177,7 +187,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 			if(assumeForward)
 				{iter=windows.getNodesBeforeInterval(read.getReferenceStartPosition(), read.getReferenceStartPosition());}
 			else
-				{iter=windows.getNodesAfterInterval(read.getReferenceStartPosition(), read.getReferenceStartPosition());}
+				{iter=windows.getNodesAfterInterval(read.getReferenceEndPosition(), read.getReferenceEndPosition());}
 			Collection<Window<T1>> rtrn=new ArrayList<Window<T1>>();
 			while(iter.hasNext()){
 				Window<T1> w=iter.next();

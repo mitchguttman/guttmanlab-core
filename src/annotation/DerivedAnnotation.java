@@ -21,4 +21,8 @@ public class DerivedAnnotation<T extends Annotation> extends BlockedAnnotation{
 	 */
 	public T getParentAnnotation(){return parentDerivedFrom;}
 	
+	public String getName()
+	{
+		return parentDerivedFrom.getName();
+	}
 }
