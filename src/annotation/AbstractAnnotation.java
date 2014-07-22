@@ -172,9 +172,9 @@ public abstract class AbstractAnnotation implements Annotation {
 			Annotation interval;
 			if(featureStart>-1 && featureEnd>-1){
 				if(getOrientation().equals(Strand.NEGATIVE)){
-					interval=new SingleInterval(getName(), featureEnd, featureStart);
+					interval=new SingleInterval(feature.getName(), featureEnd, featureStart);
 				}
-				else{interval=new SingleInterval(getName(), featureStart, featureEnd);}
+				else{interval=new SingleInterval(feature.getName(), featureStart, featureEnd);}
 				return interval;
 			}
 		}
