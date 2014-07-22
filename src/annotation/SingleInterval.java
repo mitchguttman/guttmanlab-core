@@ -122,5 +122,21 @@ public class SingleInterval extends AbstractAnnotation{
 		}
 	}
 
+	public int hashCode() {
+		String s = referenceName + "_" + featureName + "_" + startPos + "_" + endPos + "_" + orientation.toString();
+		return s.hashCode();
+	}
+	
+	public boolean equals(Object o) {
+		if(!o.getClass().equals(getClass())) return false;
+		SingleInterval other = (SingleInterval) o;
+		if(startPos != other.startPos) return false;
+		if(endPos != other.endPos) return false;
+		if(!orientation.equals(other.orientation)) return false;
+		if(!referenceName.equals(other.referenceName)) return false;
+		if(!featureName.equals(other.featureName)) return false;
+		return true;
+	}
+	
 	
 }
