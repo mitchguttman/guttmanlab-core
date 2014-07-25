@@ -93,10 +93,16 @@ public class IntervalTree<V>
 	 * @param value The associated value.
 	 * @return The old value associated with that interval, or the sentinel.
 	 */
-	public V placeInTree( int start, int end, V value )
+	public V placeInTree( int s, int e, V value )
 	{
+		int start = s;
+		int end = e;
 		if ( start > end )
-			throw new IllegalArgumentException("Start cannot exceed end. Start=" + start + "; end="+end);
+		{
+			start = e;
+			end = s;
+			//throw new IllegalArgumentException("Start cannot exceed end. Start=" + start + "; end="+end);
+		}
 
 		V result = mSentinel;
 
@@ -635,6 +641,15 @@ public class IntervalTree<V>
 		return new ValuesIterator<V>(reverseIterator(start, end));
 	}
 
+	/**
+	 * Returns an iterator overall intervals greater than or equal to the specified interval, in order
+	 * @param start the interval start
+	 * @param end the interval end
+	 * @return An iterator
+	 */
+	public Iterator<V> getNodesAfterInterval(int start, int end){
+		return new ValuesIterator<V>(iterator(start, end));
+	}
 	/**
 	 * Get the special sentinel value that will be used to signal novelty when putting a new interval
 	 * into the tree, or to signal "not found" when removing an interval.  This is null by default.

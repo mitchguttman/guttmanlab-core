@@ -67,7 +67,8 @@ public class SAMFragment extends AbstractAnnotation implements MappedFragment{
 
 	@Override
 	public int getReferenceEndPosition() {
-		return record.getAlignmentEnd();
+		//return record.getAlignmentEnd();  //this method uses an incorrect cigar parser
+		return record.getAlignmentStart() + this.size()-1;
 	}
 	
 	/**
@@ -136,7 +137,7 @@ public class SAMFragment extends AbstractAnnotation implements MappedFragment{
 	
 	@Override
 	public int getNumberOfBlocks() {
-		return getAnnotation().size();
+		return getAnnotation().getNumberOfBlocks();
 	}
 
 	@Override

@@ -3,13 +3,13 @@ package annotation;
 import java.util.Collection;
 import java.util.Iterator;
 
+import annotation.Annotation.Strand;
 import datastructures.IntervalTree;
+import datastructures.IntervalTree.Node;
 
 
 public class BlockedAnnotation extends AbstractAnnotation {
 
-	//private Collection<SingleInterval> blocks; //TODO Replace this with tree
-	
 	private IntervalTree<SingleInterval> blocks;
 	private String referenceName;
 	private int startPosition;

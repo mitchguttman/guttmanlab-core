@@ -9,6 +9,7 @@ import coordinatespace.CoordinateSpace;
 import annotation.Annotation;
 import annotation.BlockedAnnotation;
 import annotation.DerivedAnnotation;
+import annotation.Window;
 import annotation.SingleInterval;
 import annotation.Annotation.Strand;
 
@@ -36,9 +37,6 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 		CloseableIterator<T> iter=readMapping.sortedIterator(newCoordinateMapping.iterator().next(), fullyContained);//TODO Fix this so it uses all mappings not just one
 		return new CoordinateConverterIterator<T>(iter, featureMapping, fullyContained);
 	}
-	
-	
-
 
 	public <X extends Annotation> Collection<DerivedAnnotation<X>> convertCoordinates(X annotation, boolean fullyContained){
 		//Check if annotation is in Reference or Feature space
@@ -59,33 +57,30 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 		
 	}
 	
-	private <X extends Annotation> Collection<DerivedAnnotation<X>> convertFromFeature(X featureAnnotation, boolean fullyContained){
+	public <X extends Annotation> Collection<DerivedAnnotation<X>> convertFromFeature(X featureAnnotation, boolean fullyContained){
 		Collection<DerivedAnnotation<X>> rtrn=new ArrayList<DerivedAnnotation<X>>();
 		CloseableIterator<? extends Annotation> iter=featureMapping.sortedIterator();
 		while(iter.hasNext()){
 			Annotation referenceAnnotation=iter.next();
-			//if the names are the same then it is the same feature
 			if(referenceAnnotation.getName().equals(featureAnnotation.getReferenceName())){
-				//trim to relative start and end
+				//if the names are the same then it is the same feature
+				//trim to relative start and end	
 				Annotation a=referenceAnnotation.convertToReferenceSpace(featureAnnotation);
 				DerivedAnnotation<X> dA=new DerivedAnnotation<X>(a, featureAnnotation);
-				rtrn.add(dA);
+				rtrn.add(dA);	
 			}
 		}
 		iter.close();
 		return rtrn;
 	}
 	
-	
-	
-	
-	private <X extends Annotation> Collection<DerivedAnnotation<X>> convertFromReference(X annotation, boolean fullyContained){
+	public <X extends Annotation> Collection<DerivedAnnotation<X>> convertFromReference(X annotation, boolean fullyContained){
 		Collection<DerivedAnnotation<X>> rtrn=new ArrayList<DerivedAnnotation<X>>();
 
 		//Find features overlapping the annotation
 		CloseableIterator<? extends Annotation> iter=featureMapping.sortedIterator(annotation, fullyContained);
 	
-		//Adjust the coordinates of the feature as needed in featureSpace (ie as distance from start and end)
+			//Adjust the coordinates of the feature as needed in featureSpace (ie as distance from start and end)
 		while(iter.hasNext()){
 			Annotation feature=iter.next();
 			Annotation intersect=feature.intersect(annotation); //TODO Consider whether to remove this, it may not be needed and is expensive per read
@@ -117,7 +112,21 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 	public CoordinateSpace getFeatureCoordinateSpace() {
 		return featureMapping.getReferenceCoordinateSpace(); //TODO Fix this
 	}
-	
+
+	@Override
+	public CloseableIterator<Window<DerivedAnnotation<T>>> getWindows(Annotation region, int windowLength)
+	{
+		//get read iterator overlapping the feature		
+		CloseableIterator<DerivedAnnotation<T>> iter = sortedIterator(region,true); 
+		//pass the read iterator to WindowIterator with boolean set by orientation of the feature
+		CloseableIterator<Window<DerivedAnnotation<T>>> windows;
+		if(region.getOrientation().equals(Strand.NEGATIVE))
+			{windows = new WindowIterator<DerivedAnnotation<T>>(iter,windowLength,false);}
+		else
+			{windows = new WindowIterator<DerivedAnnotation<T>>(iter,windowLength,true);}
+		//return the windowIterator
+		return windows;
+	}
 	
 	public class CoordinateConverterIterator<X extends Annotation> implements CloseableIterator<DerivedAnnotation<X>>{
 
@@ -136,7 +145,12 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 
 		@Override
 		public boolean hasNext() {
-			if((!started || !next.hasNext()) && iter.hasNext()){
+			if(!iter.hasNext())
+			{
+				System.err.println("converted read iterator was empty.");
+				return false;
+			}
+				if((!started || !next.hasNext()) && iter.hasNext()){
 				started=true;
 				findNext();
 				return hasNext();

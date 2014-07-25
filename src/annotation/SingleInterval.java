@@ -79,12 +79,6 @@ public class SingleInterval extends AbstractAnnotation{
 	}
 
 	@Override
-	public BlockedAnnotation intersect(Annotation other) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public int getNumberOfBlocks() {
 		return 1;
 	}
