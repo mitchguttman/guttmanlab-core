@@ -1,13 +1,16 @@
 package pipeline.util;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import nextgen.core.job.Job;
 import nextgen.core.job.JobUtils;
@@ -20,6 +23,8 @@ import org.ggf.drmaa.Session;
 
 import pipeline.Scheduler;
 
+import broad.core.parser.CommandLineParser;
+import broad.core.parser.StringParser;
 import broad.pda.seq.fastq.FastqParser;
 import broad.pda.seq.fastq.FastqSequence;
 
@@ -320,5 +325,165 @@ public class FastqUtils {
 		
 	}
 	
+	
+	/**
+	 * Remove reads that are missing from file1 or file2 and write new fastq files
+	 * @param inFastq1 Input fastq file read 1
+	 * @param inFastq2 Input fastq file read 2
+	 * @param outFastq1 Output fastq file read 1
+	 * @param outFastq2 Output fastq file read 2
+	 * @param fastqReadIdPairNumberDelimiter Delimiter between read name and read number (1 or 2), or null if whitespace
+	 * @throws IOException 
+	 */
+	public static void filterPairedFastqFilesMissingReads(String inFastq1, String inFastq2, String outFastq1, String outFastq2, String fastqReadIdPairNumberDelimiter) throws IOException {
+		logger.info("Filtering files " + inFastq1 + " and " + inFastq2 + " for missing reads and writing to " + outFastq1 + " and " + outFastq2 + "...");
+
+		StringParser sp = new StringParser();
+		
+		// Save all read names from infile 1 to a treeset
+		logger.info("Reading " + inFastq1 + "...");
+		TreeSet<String> inFastq1Ids = new TreeSet<String>();
+		FileReader r1 = new FileReader(inFastq1);
+		BufferedReader b1 = new BufferedReader(r1);
+		int linesRead1 = 0;
+		while(b1.ready()) {
+			String line = b1.readLine();
+			linesRead1++;
+			if(linesRead1 % 4 == 1) {
+				if(fastqReadIdPairNumberDelimiter != null) {
+					sp.parse(line, fastqReadIdPairNumberDelimiter);
+				} else {
+					sp.parse(line);
+				}
+				String id = sp.asString(0);
+				// Avoid rare duplicated read IDs
+				if(inFastq1Ids.contains(id)) { 
+					inFastq1Ids.remove(id);
+					logger.warn("Skipping read " + id + " because appears in file " + inFastq1 + " twice.");
+					continue;
+				}
+				inFastq1Ids.add(id);
+				id = null;
+			}
+			line = null;
+		}
+		r1.close();
+		b1.close();
+		logger.info(inFastq1 + " contains " + inFastq1Ids.size() + " reads.");
+		
+		// Save read names that appear in both files to a treeset
+		// Write those reads from input file 2 to new file
+		logger.info("Reading " + inFastq2 + " and writing common reads to " + outFastq2 + "...");
+		FileWriter w2 = new FileWriter(outFastq2);
+		TreeSet<String> bothFastqIds = new TreeSet<String>();
+		TreeSet<String> inFastq2Ids = new TreeSet<String>();
+		FileReader r2 = new FileReader(inFastq2);
+		BufferedReader b2 = new BufferedReader(r2);
+		int linesRead2 = 0;
+		while(b2.ready()) {
+			String line = b2.readLine();
+			linesRead2++;
+			if(linesRead2 % 4 == 1) {
+				if(fastqReadIdPairNumberDelimiter != null) {
+					sp.parse(line, fastqReadIdPairNumberDelimiter);
+				} else {
+					sp.parse(line);
+				}
+				String id = sp.asString(0);
+				// Avoid rare duplicated read IDs
+				if(inFastq2Ids.contains(id)) {
+					logger.warn("Skipping read " + id + " because appears in file " + inFastq2 + " twice.");
+					inFastq2Ids.remove(id);
+					continue;
+				}
+				inFastq2Ids.add(id);
+				if(inFastq1Ids.contains(id)) {
+					bothFastqIds.add(id);
+					String line2 = b2.readLine();
+					String line3 = b2.readLine();
+					String line4 = b2.readLine();
+					linesRead2 += 3;
+					w2.write(line + "\n" + line2 + "\n" + line3 + "\n" + line4 + "\n");			
+					line2 = null;
+					line3 = null;
+					line4 = null;
+				}
+				id = null;
+			}
+			line = null;
+		}
+		r2.close();
+		b2.close();
+		w2.close();
+		logger.info(inFastq2 + " contains " + inFastq2Ids.size() + " reads of which " + bothFastqIds.size() + " are also in " + inFastq1 + ".");
+
+		
+		// Write reads from infile 1 that appear in both files to new file
+		logger.info("Writing common reads from " + inFastq1 + " to " + outFastq1 + "...");
+		FileWriter w1 = new FileWriter(outFastq1);
+		FileReader r3 = new FileReader(inFastq1);
+		BufferedReader b3 = new BufferedReader(r3);
+		int linesRead3 = 0;
+		while(b3.ready()) {
+			String line = b3.readLine();
+			linesRead3++;
+			if(linesRead3 % 4 == 1) {
+				if(fastqReadIdPairNumberDelimiter != null) {
+					sp.parse(line, fastqReadIdPairNumberDelimiter);
+				} else {
+					sp.parse(line);
+				}
+				if(bothFastqIds.contains(sp.asString(0))) {
+					String line2 = b3.readLine();
+					String line3 = b3.readLine();
+					String line4 = b3.readLine();
+					linesRead3 += 3;
+					w1.write(line + "\n" + line2 + "\n" + line3 + "\n" + line4 + "\n");			
+					line2 = null;
+					line3 = null;
+					line4 = null;
+				}
+			}
+			line = null;
+		}
+		r3.close();
+		b3.close();
+		w1.close();
+		
+		logger.info("Done writing filtered files.");
+		
+	}
+	
+	
+	/**
+	 * @param args
+	 * @throws IOException
+	 */
+	public static void main(String[] args) throws IOException {
+		
+		CommandLineParser p = new CommandLineParser();
+		p.addStringArg("-i1", "Input fastq 1", true);
+		p.addStringArg("-i2", "Input fastq 2", true);
+		p.addStringArg("-o1", "Output fastq 1", true);
+		p.addStringArg("-o2", "Output fastq 2", true);
+		p.addStringArg("-d", "Fastq read number delimiter if other than whitespace", false, null);
+		p.addBooleanArg("-f", "Filter paired fastq files missing reads", true);
+		p.parse(args);
+		String input1 = p.getStringArg("-i1");
+		String input2 = p.getStringArg("-i2");
+		String output1 = p.getStringArg("-o1");
+		String output2 = p.getStringArg("-o2");
+		String delimiter = p.getStringArg("-d");
+		boolean filterPairedFiles = p.getBooleanArg("-f");
+		
+		if(filterPairedFiles) {
+			filterPairedFastqFilesMissingReads(input1, input2, output1, output2, delimiter);
+		}
+		
+		logger.info("");
+		logger.info("All done.");
+		
+	}
+
 
 }
