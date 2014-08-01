@@ -43,11 +43,8 @@ public class PcrPrimerDesigner  {
 	
 	private ArrayList<SequenceRegionCoordinates> exludedAnnotations = new ArrayList<SequenceRegionCoordinates>();
 	private static Logger logger = Logger.getLogger(PcrPrimerDesigner.class.getName());
-	private int buffer;
 
-	public PcrPrimerDesigner(int buffer) {
-		this.buffer = buffer;
-	}
+	public PcrPrimerDesigner() {}
 	
 	/*public PrimedRegion findPrimers(Sequence sequence, 
 			GenomicAnnotation targetAnnotation, 
@@ -822,6 +819,43 @@ public class PcrPrimerDesigner  {
 		return rtrn;
 	}
 	
+	/**
+	 * Design a primer pair that flanks a region of interest
+	 * One primer is in each flanking region
+	 * Neither primer overlaps the actual region
+	 * @param config primer3 configuration
+	 * @param sequence The sequence containing the region of interest
+	 * @param pathPrimer3core primer3core executable
+	 * @param regionStart Start position of region of interest
+	 * @param regionEnd Position after last position of region of interest
+	 * @param flankingRegionSize Size of flanking regions to search for primers
+	 * @return Primer pair with one primer in each flank or null if none exist
+	 * @throws IOException
+	 */
+	public static PrimerPair designPrimerPairFlankingWindow(Primer3Configuration config, Sequence sequence, String pathPrimer3core, int regionStart, int regionEnd, int flankingRegionSize) throws IOException {
+
+		Sequence leftFlank = sequence.getSubSequence("", regionStart - flankingRegionSize, regionStart);
+		Sequence rightFlank = sequence.getSubSequence("", regionEnd, regionEnd + flankingRegionSize);
+		
+		// Make a string of Ns to put between the two flanking regions
+		int innerLength = Math.max(regionEnd - regionStart, flankingRegionSize);
+		char[] ns = new char[innerLength];
+		for(int i = 0; i < ns.length; i++) ns[i] = 'N';
+		String nStr = new String(ns);
+		
+		String modifiedSequence = leftFlank.getSequenceBases() + nStr + rightFlank.getSequenceBases(); // Sequence to design primers against
+		
+		// Change the product size in the primer3 config
+		config.minProductSize = innerLength;
+		config.maxProductSize = modifiedSequence.length();
+		
+		// Change number of primers to return
+		config.maxNumPrimersToReturn = 1;
+		
+		// Get the primer
+		return designBestPrimer(config, modifiedSequence, pathPrimer3core);
+		
+	}
 	
 	/**
 	 * Design primers using primer3
@@ -985,7 +1019,6 @@ public class PcrPrimerDesigner  {
 		p.addStringArg("-s","Fasta file of sequences to design primers against",true);
 		p.addStringArg("-r","Optional file of region coordinates to design primers against (format: sequence_name start_pos end_pos)",false,null);
 		p.addStringArg("-c","Primer3 configuration name",true);
-		p.addIntArg("-pd", "For plasmid deletion, max total number of plasmid positions not in PCR product", false, 100);
 		p.addBooleanArg("-rc", "Design primers against antisense strand", true);
 		p.addStringArg("-o", "outfile", true);
 		p.addStringArg("-p3c", "primer3core executable", true);
@@ -997,7 +1030,6 @@ public class PcrPrimerDesigner  {
 		String config = p.getStringArg("-c");
 		String outfile = p.getStringArg("-o");
 		boolean rc = p.getBooleanArg("-rc");
-		int plasmidMissingPositions = p.getIntArg("-pd");
 		String primer3core = p.getStringArg("-p3c");
 		
 		
@@ -1043,8 +1075,9 @@ public class PcrPrimerDesigner  {
 				
 				String line = b.readLine();
 				s.parse(line);
-				if(s.getFieldCount() != 3) {
-					throw new IllegalArgumentException("Region line is not valid:\n" + line + "\nFormat: sequence_name start_pos end_pos");
+				if(s.getFieldCount() != 3 && s.getFieldCount() != 4) {
+					b.close();
+					throw new IllegalArgumentException("Region line is not valid:\n" + line + "\nFormat: sequence_name start_pos end_pos <optional ID>");
 				}
 				String seqname = s.asString(0);
 				int start = s.asInt(1);
@@ -1058,10 +1091,15 @@ public class PcrPrimerDesigner  {
 				Sequence theseq = iter.next();
 				
 				Sequence subseq = theseq.getSubSequence(theseq.getId() + ":" + start + "-" + end, start, end);
+				if(s.getFieldCount() == 4) {
+					subseq.setId(s.asString(3));
+				}
 				if(rc) seqs.add(subseq.getAntisense());
 				else seqs.add(subseq);
 				
 			}
+			
+			b.close();
 			
 		}
 		
@@ -1073,36 +1111,37 @@ public class PcrPrimerDesigner  {
 		if(config.equals(QPCR_CONFIG_NAME)) primer3config = Primer3ConfigurationFactory.getQpcrConfiguration();
 		// If plasmids, will get separate configuration for each plasmid
 		if(config.equals(DELETION_PLASMID_CONFIG_NAME)) primer3config = null;
-
-		Primer3IO p3io = new Primer3IO(primer3core);
-		p3io.startPrimer3Communications();
 		
 		// output file
 		FileWriter writer = new FileWriter(outfile);
-		writer.write(PrimerPair.SEQUENCE_FIELD_NAME + "\t" + PrimerPair.getPrimerPairInformationFieldNames() + "\n");
 		
+		String header = "primer_ID\t";
+		header += "left_primer\t";
+		header += "right_primer\t";
+		header += "left_primer_TM\t";
+		header += "right_primer_TM\t";
+		header += "primer_pair_penalty";
+		writer.write(header + "\n");
+
 		for(Sequence seq : seqs) {
 			
-			// If plasmid, get primer3 configuration with optimal product size equal to sequence length
-			if(config.equals(DELETION_PLASMID_CONFIG_NAME)) primer3config = Primer3ConfigurationFactory.getDeletionPlasmidConfiguration(seq.getLength(), seq.getLength() - plasmidMissingPositions, seq.getLength());
-			
-			Primer3SequenceInputTags p3sit = new Primer3SequenceInputTags(seq);	
-			p3sit.setPrimerSequenceId(seq.getId());
-			Collection<PrimerPair> pp = p3io.findPrimerPair(p3sit, primer3config);
-			if(pp == null || pp.isEmpty()) {
-				writer.write(seq.getId() + "\t" + PrimerPair.NO_PRIMERS_NAME + "\n");
+			PrimerPair primer = PcrPrimerDesigner.designBestPrimer(primer3config, seq, primer3core);
+			String lineToWrite = seq.getId() + "\t";
+			if(primer == null) {
+				lineToWrite += "NO_PRIMERS";
+				writer.write(lineToWrite + "\n");
 				continue;
 			}
-			
-			for(PrimerPair pair: pp){
-				if(pair.getLeftPrimer()!=null && pair.getRightPrimer()!=null) {
-					writer.write(seq.getId() + "\t" + pair.getPrimerPairInformation() + "\n");
-				}
-			}
+			lineToWrite += primer.getLeftPrimer().toUpperCase() + "\t";
+			lineToWrite += primer.getRightPrimer().toUpperCase() + "\t";
+			lineToWrite += primer.getLeftPrimerTM() + "\t";
+			lineToWrite += primer.getRightPrimerTM() + "\t";
+			lineToWrite += primer.getPrimerPairPenalty();
+			writer.write(lineToWrite + "\n");
+
 			
 		}
 		
-		p3io.endPrimer3Communications();
 		writer.close();
 		
 		logger.info("");
