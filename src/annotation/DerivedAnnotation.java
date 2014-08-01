@@ -25,4 +25,9 @@ public class DerivedAnnotation<T extends Annotation> extends BlockedAnnotation{
 	{
 		return parentDerivedFrom.getName();
 	}
+	
+	public Strand getOrientation()
+	{
+		return parentDerivedFrom.getOrientation();
+	}
 }

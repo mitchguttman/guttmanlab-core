@@ -14,7 +14,7 @@ public class ContiguousWindow<T extends Annotation> extends SingleInterval imple
 	Collection<T> annotations;
 	
 	public ContiguousWindow(String refName, int start, int end) {
-		this(refName, start, end, Strand.UNSTRANDED);
+		this(refName, start, end, Strand.BOTH);
 	}
 	
 	public ContiguousWindow(String refName, int start, int end, Strand orientation){

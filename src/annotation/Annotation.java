@@ -19,7 +19,7 @@ public interface Annotation {
 	 *
 	 */
 	public enum Strand {
-		POSITIVE('+'), NEGATIVE('-'), UNKNOWN('?'), UNSTRANDED('*'), BOTH('*'), INVALID('^');
+		POSITIVE('+'), NEGATIVE('-'), UNKNOWN('?'), BOTH('*'), INVALID('^');
 		private char value;
 		
 		private Strand(char value) {
@@ -42,8 +42,8 @@ public interface Annotation {
 			else if(this.equals(NEGATIVE)){
 				return POSITIVE;
 			}
-			else if(this.equals(UNSTRANDED)){
-				return UNSTRANDED;
+			else if(this.equals(BOTH)){
+				return BOTH;
 			}
 			else{
 				return UNKNOWN;
@@ -52,10 +52,10 @@ public interface Annotation {
 		
 		public static Strand consensusStrand(Strand strand1, Strand strand2) {
 			Strand rtrn=INVALID;
-			if(strand1.equals(BOTH) || strand1.equals(UNSTRANDED)){
+			if(strand1.equals(BOTH) || strand1.equals(UNKNOWN)){ //TODO Verify that this is the correct behavior
 				rtrn=strand2;
 			}
-			if(strand2.equals(BOTH) || strand2.equals(UNSTRANDED)){
+			if(strand2.equals(BOTH) || strand2.equals(UNKNOWN)){
 				rtrn=strand1;
 			}
 			if(strand1.equals(strand2)){
@@ -67,7 +67,7 @@ public interface Annotation {
 		public static Strand fromString(String value) {
 			if (value.equals("+")) return POSITIVE;
 			if (value.equals("-")) return NEGATIVE;
-			if(value.equals("*")) return UNSTRANDED;
+			if(value.equals("*")) return BOTH;
 			else return UNKNOWN;
 		}
 

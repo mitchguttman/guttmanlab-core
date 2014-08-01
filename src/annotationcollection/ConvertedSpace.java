@@ -7,10 +7,8 @@ import java.util.Iterator;
 import net.sf.samtools.util.CloseableIterator;
 import coordinatespace.CoordinateSpace;
 import annotation.Annotation;
-import annotation.BlockedAnnotation;
 import annotation.DerivedAnnotation;
 import annotation.Window;
-import annotation.SingleInterval;
 import annotation.Annotation.Strand;
 
 public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationCollection<DerivedAnnotation<T>>{
@@ -34,8 +32,14 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 	public CloseableIterator<DerivedAnnotation<T>> sortedIterator(Annotation region, boolean fullyContained) {
 		//Step 1: Convert region to old reference space
 		Collection<DerivedAnnotation<Annotation>> newCoordinateMapping=convertCoordinates(region, fullyContained);
-		CloseableIterator<T> iter=readMapping.sortedIterator(newCoordinateMapping.iterator().next(), fullyContained);//TODO Fix this so it uses all mappings not just one
-		return new CoordinateConverterIterator<T>(iter, featureMapping, fullyContained);
+		CloseableIterator<T> iter = null;
+		if(newCoordinateMapping.iterator().hasNext())
+		{
+			iter=readMapping.sortedIterator(newCoordinateMapping.iterator().next(), fullyContained);
+			return new CoordinateConverterIterator<T>(iter, featureMapping, fullyContained);
+		}
+		else
+			return new CoordinateConverterIterator<T>();
 	}
 
 	public <X extends Annotation> Collection<DerivedAnnotation<X>> convertCoordinates(X annotation, boolean fullyContained){
@@ -105,12 +109,12 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 	
 	@Override
 	public CoordinateSpace getReferenceCoordinateSpace() {
-		return featureMapping.getFeatureCoordinateSpace(); //TODO Fix this
+		return featureMapping.getFeatureCoordinateSpace(); 
 	}
 	
 	@Override
 	public CoordinateSpace getFeatureCoordinateSpace() {
-		return featureMapping.getReferenceCoordinateSpace(); //TODO Fix this
+		return featureMapping.getReferenceCoordinateSpace(); 
 	}
 
 	@Override
@@ -121,9 +125,9 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 		//pass the read iterator to WindowIterator with boolean set by orientation of the feature
 		CloseableIterator<Window<DerivedAnnotation<T>>> windows;
 		if(region.getOrientation().equals(Strand.NEGATIVE))
-			{windows = new WindowIterator<DerivedAnnotation<T>>(iter,windowLength,false);}
-		else
 			{windows = new WindowIterator<DerivedAnnotation<T>>(iter,windowLength,true);}
+		else
+			{windows = new WindowIterator<DerivedAnnotation<T>>(iter,windowLength,false);}
 		//return the windowIterator
 		return windows;
 	}
@@ -143,19 +147,28 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 			this.fullyContained=fullyContained;
 		}
 
+		public CoordinateConverterIterator() {
+			//creates an empty iterator
+			this.iter = null;
+			this.started = false;
+			this.mapping = null;
+			this.fullyContained = false;
+		}
+
 		@Override
 		public boolean hasNext() {
-			if(!iter.hasNext())
+			if(iter==null)
 			{
-				System.err.println("converted read iterator was empty.");
+				//System.err.println("converted read iterator was empty.");
 				return false;
 			}
-				if((!started || !next.hasNext()) && iter.hasNext()){
+			if((!started || !next.hasNext()) && iter.hasNext())
+			{
 				started=true;
 				findNext();
 				return hasNext();
 			}
-			if(next.hasNext()){
+			if(next!=null && next.hasNext()){
 				return true;
 			}
 

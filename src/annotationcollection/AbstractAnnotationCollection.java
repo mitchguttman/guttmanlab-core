@@ -67,7 +67,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 	@Override
 	public CloseableIterator<? extends Window<T>> getWindows(Annotation region, int windowLength){
 		CloseableIterator<T> iter=sortedIterator(region, false);
-		return new WindowIterator<T>(iter, windowLength);
+		return new WindowIterator<T>(iter, windowLength, region);
 	}
 
 	@Override
@@ -121,6 +121,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		int windowLength;
 		boolean hasNext;
 		boolean assumeForward;
+		Annotation region;
 
 		public WindowIterator(CloseableIterator<T1> iter, int windowLength, boolean assumeForward){
 			this.iter=iter;
@@ -133,6 +134,12 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		public WindowIterator(CloseableIterator<T1> iter, int windowLength)
 		{
 			this(iter,windowLength,true);
+			this.region = null;
+		}
+
+		public WindowIterator(CloseableIterator<T1> iter, int windowLength,Annotation region) {
+			this(iter,windowLength,true);
+			this.region = region;
 		}
 
 		@Override
@@ -170,7 +177,10 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 			while(interval.hasNext()){
 				SingleInterval block=interval.next();
 				int start=Math.max(0, block.getReferenceStartPosition()-windowLength);
-				for(int i=start; i<block.getReferenceEndPosition(); i++){
+				int end = block.getReferenceEndPosition();
+				if(region!=null)
+					end = Math.min(region.getReferenceEndPosition(), block.getReferenceEndPosition());
+				for(int i=start; i<end; i++){
 					Window<T1> window=windows.remove(i, i+windowLength);
 					if(window==null){
 						//make a window

@@ -2,6 +2,8 @@ package annotationcollection;
 
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import coordinatespace.CoordinateSpace;
 import net.sf.samtools.SAMFileHeader;
@@ -14,6 +16,8 @@ import net.sf.samtools.util.CloseableIterator;
 import annotation.Annotation;
 import annotation.PairedMappedFragment;
 import annotation.SAMFragment;
+import annotation.SingleInterval;
+import annotation.predicate.StrandFilter;
 
 /**
  * This class represents a single-end read collection
@@ -38,10 +42,90 @@ public class BAMSingleReadCollection extends AbstractAnnotationCollection<SAMFra
 
 	@Override
 	public CloseableIterator<SAMFragment> sortedIterator(Annotation region, boolean fullyContained) {
-		SAMRecordIterator iter=reader.queryOverlapping(region.getReferenceName(), region.getReferenceStartPosition()+1, region.getReferenceEndPosition());
-		return new FilteredIterator<SAMFragment>(new WrappedIterator(iter), getFilters());
+		CloseableIteratorChain iter_chain = new CloseableIteratorChain(region);
+		addFilter(new StrandFilter<SAMFragment>(region.getOrientation()));
+		return new FilteredIterator<SAMFragment>(iter_chain, getFilters());
+	}
+	
+	public class CloseableIteratorChain implements Iterator<SAMFragment>{
+		
+		private CloseableIterator<SAMFragment> currentIterator;
+		private Iterator<SingleInterval> blocks;
+		private Annotation region;
+		private SAMFragment next;
+		private ArrayList<String> splicedReadNames;
+		
+		public CloseableIteratorChain(Annotation region)
+		{
+			this.region = region;
+			this.blocks = region.getBlocks();
+			this.currentIterator = null;
+			this.splicedReadNames = new ArrayList<String>();
+		}
+		
+		public boolean hasNext(){
+			if(currentIterator == null)
+			{
+				if(blocks.hasNext())
+				{
+					Annotation block = blocks.next();
+					currentIterator = new WrappedIterator(reader.queryOverlapping(region.getReferenceName(), block.getReferenceStartPosition()+1,block.getReferenceEndPosition()));
+					return hasNext();
+				}
+				else //there were no more blocks
+					return false;
+			}
+			else
+			{
+				findNext();
+				if(next!=null)
+				{
+					return true;
+				}
+				else //we've reached the end of the current iterator
+				{
+					currentIterator.close();
+					currentIterator = null;
+					return hasNext();
+				}
+			}
+		}
+		
+		private void findNext()
+		{
+			if(next==null && currentIterator.hasNext())
+			{
+				SAMFragment n = currentIterator.next();
+				if(n.getNumberOfBlocks()>1)
+				{
+					String id = ""+n.getName()+n.getSamRecord().getFirstOfPairFlag();
+					if(!splicedReadNames.contains(id))
+					{
+						this.next = n;
+						splicedReadNames.add(id);
+					}
+					else
+						findNext();
+				}
+				else
+					this.next = n;
+			}
+		}
+		
+		@Override
+		public SAMFragment next() {
+			SAMFragment n = next;
+			this.next = null;
+			return n;
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
 	}
 
+		
 	//TODO Consider whether to delete
 	public void writeToFile(String fileName) {
 		CloseableIterator<SAMFragment> iter= sortedIterator();
@@ -84,7 +168,7 @@ public class BAMSingleReadCollection extends AbstractAnnotationCollection<SAMFra
 
 		@Override
 		public void remove() {
-			// TODO Auto-generated method stub
+			iter.remove();
 			
 		}
 
