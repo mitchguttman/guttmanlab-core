@@ -105,7 +105,12 @@ public class BlockedAnnotation extends AbstractAnnotation {
 				numBlocks--;
 			}
 		}
-		blocks.put(merged.getReferenceStartPosition(), merged.getReferenceEndPosition(), merged);
+		int end = merged.getReferenceEndPosition();
+		int start = merged.getReferenceStartPosition();
+		if(start>end)
+			blocks.put(end,start, merged);
+		else
+			blocks.put(start, end, merged);
 		size+=merged.size();
 		numBlocks++;
 		
