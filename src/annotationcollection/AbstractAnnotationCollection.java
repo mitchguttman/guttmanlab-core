@@ -26,6 +26,7 @@ import datastructures.IntervalTree;
 public abstract class AbstractAnnotationCollection<T extends Annotation> implements AnnotationCollection<T>{
 
 	private Collection<Predicate<T>> filters;
+	private int numAnnotations;
 
 	public AbstractAnnotationCollection(){
 		filters=new ArrayList<Predicate<T>>();
@@ -34,6 +35,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 	@Override
 	public void addFilter(Predicate<T> filter) {
 		filters.add(filter);
+		numAnnotations = 0;
 	}
 
 	@Override
@@ -238,16 +240,20 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		return new CoordinateSpace(sizes);
 	}
 	
-	public int getCount(){
-		CloseableIterator<T> iter = this.sortedIterator();
+	public int getNumAnnotations(){
+		if(this.numAnnotations != 0)
+			return this.numAnnotations;
 
+		CloseableIterator<T> iter = this.sortedIterator();
 		int count = 0;
 		while(iter.hasNext())
 		{
 			iter.next();
 			count++;
 		}
-		return count;
+		iter.close();
+		this.numAnnotations = count;
+		return this.numAnnotations;
 	}
 	
 	
