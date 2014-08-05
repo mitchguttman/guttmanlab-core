@@ -10,6 +10,7 @@ import coordinatespace.CoordinateSpace;
 import annotation.Annotation;
 import annotation.BlockedAnnotation;
 import annotation.DerivedAnnotation;
+import annotation.SAMFragment;
 import annotation.Window;
 
 /**
@@ -110,5 +111,9 @@ public interface AnnotationCollection<T extends Annotation> {
 	 */
 	public CloseableIterator<? extends Window<T>> getWindows(Annotation region, int windowLength);
 	
-
+	/**
+	 * Iterates through the annotations in sortedIterator()
+	 * @return the number of annotations in the collection
+	 */
+	public int getCount();
 }

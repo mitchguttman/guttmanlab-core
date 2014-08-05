@@ -16,6 +16,7 @@ import net.sf.samtools.util.CloseableIterator;
 import annotation.Annotation;
 import annotation.ContiguousWindow;
 import annotation.DerivedAnnotation;
+import annotation.SAMFragment;
 import annotation.SingleInterval;
 import annotation.Window;
 import annotation.Annotation.Strand;
@@ -237,6 +238,17 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		return new CoordinateSpace(sizes);
 	}
 	
+	public int getCount(){
+		CloseableIterator<T> iter = this.sortedIterator();
+
+		int count = 0;
+		while(iter.hasNext())
+		{
+			iter.next();
+			count++;
+		}
+		return count;
+	}
 	
 	
 }

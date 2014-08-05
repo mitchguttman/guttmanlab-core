@@ -114,5 +114,12 @@ public class BAMSingleReadTest {
 		assertEquals("3 positive read should overlap Trpd52l3.",3,count); 
 		
 	}
+	
+	@Test
+	public void AnnotationCollectionGetCount() {
+		int count = bam.getCount();
+		assertEquals(count,2267045);
+	}
+	
 
 }

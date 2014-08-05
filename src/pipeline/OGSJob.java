@@ -7,9 +7,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
-
-import nextgen.core.pipeline.util.OGSUtils;
-
 import org.apache.log4j.Logger;
 import org.ggf.drmaa.DrmaaException;
 import org.ggf.drmaa.JobInfo;
