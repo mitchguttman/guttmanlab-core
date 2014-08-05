@@ -12,15 +12,15 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import nextgen.core.job.Job;
-import nextgen.core.job.JobUtils;
-import nextgen.core.job.LSFJob;
-import nextgen.core.job.OGSJob;
 
 import org.apache.log4j.Logger;
 import org.ggf.drmaa.DrmaaException;
 import org.ggf.drmaa.Session;
 
+import pipeline.Job;
+import pipeline.JobUtils;
+import pipeline.LSFJob;
+import pipeline.OGSJob;
 import pipeline.Scheduler;
 
 import broad.core.parser.CommandLineParser;

@@ -9,6 +9,8 @@ import org.apache.log4j.Logger;
 import org.ggf.drmaa.DrmaaException;
 import org.ggf.drmaa.Session;
 
+import pipeline.LSFJob;
+import pipeline.OGSJob;
 import pipeline.Scheduler;
 
 import net.sf.samtools.SAMFileHeader;
@@ -17,8 +19,6 @@ import net.sf.samtools.SAMFileWriter;
 import net.sf.samtools.SAMFileWriterFactory;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMRecordIterator;
-import nextgen.core.job.LSFJob;
-import nextgen.core.job.OGSJob;
 
 public class BamUtils {
 

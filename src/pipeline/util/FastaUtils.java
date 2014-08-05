@@ -6,13 +6,13 @@ import java.io.IOException;
 import java.util.Collection;
 
 
-import nextgen.core.job.LSFJob;
-import nextgen.core.job.OGSJob;
 
 import org.apache.log4j.Logger;
 import org.ggf.drmaa.DrmaaException;
 import org.ggf.drmaa.Session;
 
+import pipeline.LSFJob;
+import pipeline.OGSJob;
 import pipeline.Scheduler;
 
 import broad.core.sequence.FastaSequenceIO;
