@@ -1,5 +1,7 @@
 package serialize.util;
 
+import general.CommandLineParser;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -14,8 +16,6 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumWriter;
 import org.apache.log4j.Logger;
 
-
-import broad.core.parser.CommandLineParser;
 
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMRecord;
