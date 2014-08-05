@@ -1,10 +1,11 @@
 package serialize;
 
+import general.CommandLineParser;
+
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import broad.core.parser.CommandLineParser;
 
 /**
  * Build an index for an avro file

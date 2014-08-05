@@ -1,9 +1,6 @@
 package pipeline.util;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collection;
 
 
 
@@ -15,8 +12,6 @@ import pipeline.LSFJob;
 import pipeline.OGSJob;
 import pipeline.Scheduler;
 
-import broad.core.sequence.FastaSequenceIO;
-import broad.core.sequence.Sequence;
 
 /**
  * @author prussell
@@ -76,28 +71,6 @@ public class FastaUtils {
 		default:
 			throw new IllegalArgumentException("Scheduler " + scheduler.toString() + " not supported.");
 		}
-	}
-	
-	/**
-	 * Write size file for a fasta file
-	 * @param refFasta The fasta file
-	 * @return The name of the size file that has been written
-	 * @throws IOException
-	 */
-	public static String writeSizeFile(String refFasta) throws IOException {
-		String sizeFileName = refFasta + ".sizes";
-		File chrSizeFile = new File(sizeFileName);
-		if(!chrSizeFile.exists()) {
-			FileWriter w = new FileWriter(sizeFileName);
-			logger.info("Writing chromosome sizes to file " + sizeFileName);
-			FastaSequenceIO fsio = new FastaSequenceIO(refFasta);
-			Collection<Sequence> seqs = fsio.loadAll();
-			for(Sequence seq : seqs) {
-				w.write(seq.getId() + "\t" + seq.getLength() + "\n");
-			}
-			w.close();
-		}
-		return sizeFileName;
 	}
 
 

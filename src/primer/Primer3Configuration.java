@@ -2,7 +2,6 @@ package primer;
 
 import java.lang.reflect.Field;
 
-import broad.core.primer3.Primer3PrimerPickingMode;
 
 /*
 * $Id: Primer3Configuration.java 35971 2007-02-12 16:01:50Z mgarber $

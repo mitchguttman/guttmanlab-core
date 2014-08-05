@@ -1,5 +1,7 @@
 package serialize;
 
+import general.StringParser;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -14,7 +16,6 @@ import org.apache.avro.generic.GenericData.Record;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.log4j.Logger;
 
-import broad.core.parser.StringParser;
 
 /**
  * An index for a string field

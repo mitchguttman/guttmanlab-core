@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.TreeMap;
 
-import broad.core.primer3.Primer3SequenceInputTags;
 
 public class Primer3IO {
 	//private static final String PRIMER3_CMD = "/seq/mgarber/tools/primer3-1.1.1/src/primer3_core";

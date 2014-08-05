@@ -1,6 +1,7 @@
 package pipeline;
 
-import broad.core.parser.StringParser;
+import general.StringParser;
+
 
 /**
  * @author prussell

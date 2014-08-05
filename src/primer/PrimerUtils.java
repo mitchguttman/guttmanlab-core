@@ -1,5 +1,7 @@
 package primer;
 
+import general.StringParser;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Collection;
@@ -7,7 +9,6 @@ import java.util.Collection;
 import org.apache.log4j.Logger;
 
 
-import broad.core.parser.StringParser;
 import broad.core.sequence.Sequence;
 
 public class PrimerUtils {

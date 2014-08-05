@@ -1,5 +1,8 @@
 package primer;
 
+import general.CommandLineParser;
+import general.StringParser;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -13,10 +16,6 @@ import org.apache.log4j.Logger;
 import nextgen.core.annotation.Gene;
 
 import broad.core.annotation.GenomicAnnotation;
-import broad.core.parser.CommandLineParser;
-import broad.core.parser.StringParser;
-import broad.core.primer3.Primer3SequenceInputTags;
-import broad.core.primer3.Primer3SequenceInputTags.SequenceRegionCoordinates;
 import broad.core.sequence.FastaSequenceIO;
 import broad.core.sequence.Sequence;
 

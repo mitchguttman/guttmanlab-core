@@ -6,7 +6,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import broad.core.primer3.Primer3SequenceInputTags;
 import broad.core.sequence.Sequence;
 
 public class PrimerPair implements Comparable{

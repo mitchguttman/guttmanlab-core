@@ -3,6 +3,8 @@
  */
 package pipeline;
 
+import general.StringParser;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -15,7 +17,6 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
-import broad.core.parser.StringParser;
 
 /**
  * @author prussell
