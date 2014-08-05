@@ -115,5 +115,5 @@ public interface AnnotationCollection<T extends Annotation> {
 	 * Iterates through the annotations in sortedIterator()
 	 * @return the number of annotations in the collection
 	 */
-	public int getCount();
+	public int getNumAnnotations();
 }
