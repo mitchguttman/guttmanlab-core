@@ -26,8 +26,8 @@ import pipeline.LSFJob;
 import pipeline.OGSJob;
 import pipeline.Scheduler;
 
-import broad.pda.seq.fastq.FastqParser;
-import broad.pda.seq.fastq.FastqSequence;
+import pipeline.util.FastqParser;
+import pipeline.util.FastqSequence;
 
 public class FastqUtils {
 	
