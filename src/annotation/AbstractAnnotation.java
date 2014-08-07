@@ -276,4 +276,11 @@ public abstract class AbstractAnnotation implements Annotation {
 		return false;	
 	}
 	
+	public Annotation trim(int start,int end)
+	{
+		SingleInterval bound = new SingleInterval(this.getReferenceName(),start,end,this.getOrientation());
+		Annotation a = this.intersect(bound);
+		return a;
+	}
+	
 }

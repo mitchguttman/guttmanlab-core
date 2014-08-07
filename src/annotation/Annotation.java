@@ -209,4 +209,12 @@ public interface Annotation {
 	 */
 	public boolean fullyContained(Annotation other);
 	
+	/**
+	 * Returns an annotation trimmed to the specified start and end coordinates
+	 * @param start the lower bound of the trimmed annotation
+	 * @param end the upper bound of the trimmed annotation
+	 * @return
+	 */
+	public Annotation trim(int start, int end);
+	
 }
