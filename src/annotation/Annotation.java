@@ -153,6 +153,12 @@ public interface Annotation {
 	 * @return
 	 */
 	public Strand getOrientation();
+	
+	/**
+	 * Return a BED string representation of the Annotation
+	 * @return String representation
+	 */
+	public String toBED();
 
 	/**
 	 * Return a BED string representation of the Annotation
@@ -162,6 +168,12 @@ public interface Annotation {
 	 * @return String representation
 	 */
 	public String toBED(int r, int g, int b);
+	
+	/**
+	 * Return a UCSC format representation of the interval covered by the annotation
+	 * @return UCSC string
+	 */
+	public String toUCSC();
 	
 	/**
 	 * Convert the featureAnnotation from feature space into reference space

@@ -28,13 +28,24 @@ public class BAMSingleReadCollection extends AbstractAnnotationCollection<SAMFra
 
 	private SAMFileReader reader;
 	private CoordinateSpace referenceSpace;
+	private String bam;
 	
 	public BAMSingleReadCollection(File bamFile){
 		super();
 		this.reader=new SAMFileReader(bamFile);
 		this.referenceSpace=new CoordinateSpace(reader.getFileHeader());
+		this.bam = bamFile.getName();
 	}
 
+	public String getBamFile() {
+		return bam;
+	}
+	
+	public String toString() {
+		return getBamFile().replaceAll(".bam","");
+	}
+	
+	
 	@Override
 	public CloseableIterator<SAMFragment> sortedIterator() {
 		return new FilteredIterator<SAMFragment>(new WrappedIterator(reader.iterator()), getFilters());

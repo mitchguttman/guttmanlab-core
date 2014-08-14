@@ -125,6 +125,10 @@ public abstract class AbstractAnnotation implements Annotation {
 		return toBED(0,0,0);
 	}
 	
+	public String toBED() {
+		return toBED(0,0,0);
+	}
+	
 	public String toBED(int r, int g, int b){
 		if(r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
 			throw new IllegalArgumentException("RGB values must be between 0 and 255");
@@ -143,7 +147,7 @@ public abstract class AbstractAnnotation implements Annotation {
 		return rtrn;
 	}
 
-	private String toUCSC() {
+	public String toUCSC() {
 		return getReferenceName()+":"+getReferenceStartPosition()+"-"+getReferenceEndPosition();
 	}
 	
