@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import coordinatespace.CoordinateSpace;
 import datastructures.Pair;
@@ -31,6 +33,42 @@ public class BEDFileIO implements AnnotationFileIO<Gene> {
 	 */
 	public BEDFileIO(String referenceSizes){
 		this.referenceSpace=new CoordinateSpace(referenceSizes);
+	}
+	
+	/**
+	 * Static method to get the annotation collection represented in a bed file
+	 * @param fileName Bed file name 
+	 * @param referenceSizes The reference coordinate information containing names and sizes
+	 * @return The collection of genes described in the bed file
+	 * @throws IOException
+	 */
+	public static AnnotationCollection<Gene> loadFromFile(String fileName, String referenceSizes) throws IOException {
+		BEDFileIO bfio = new BEDFileIO(referenceSizes);
+		return bfio.loadFromFile(fileName);
+	}
+	
+	/**
+	 * Static method to get the annotation collection represented in a bed file, organized by reference name
+	 * @param fileName Bed file name 
+	 * @param referenceSizes The reference coordinate information containing names and sizes
+	 * @return Map of reference name to the collection of genes on that reference described in the bed file
+	 * @throws IOException
+	 */
+	public static Map<String, FeatureCollection<Gene>> loadFromFileByReferenceName(String fileName, String referenceSizes) throws IOException {
+		CoordinateSpace refSpace = new CoordinateSpace(referenceSizes);
+		Map<String, FeatureCollection<Gene>> rtrn = new TreeMap<String, FeatureCollection<Gene>>();
+		BufferedReader reader=new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
+		String nextLine;
+		while ((nextLine = reader.readLine()) != null) {
+			Gene annotation=parse(nextLine);
+			String reference = annotation.getReferenceName();
+			if(!rtrn.containsKey(reference)) {
+				rtrn.put(reference, new FeatureCollection<Gene>(refSpace));
+			}
+			rtrn.get(reference).addAnnotation(annotation);
+		}
+		reader.close();
+		return rtrn;
 	}
 	
 	@Override

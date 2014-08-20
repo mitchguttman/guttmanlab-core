@@ -39,16 +39,27 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 	private File fragmentFile;
 	private BAMSingleReadCollection reads;
 	private SpecialBAMPECollection fragmentReader;
+	private String bam;
 	
 	public BAMPairedFragmentCollection(File bamFile){
 		//Step 1: Initialize a Picard BAM Reader, represents reads
 		reads=new BAMSingleReadCollection(bamFile);
 		this.fragmentFile=makeFragmentFile(bamFile.getAbsolutePath());
+		this.bam = bamFile.getName();
 	}
 	
 	public BAMPairedFragmentCollection(BAMSingleReadCollection reads){
 		this.reads=reads;
 		this.fragmentFile=makeFragmentFile();
+		bam = reads.getBamFile();
+	}
+	
+	public String getBamFile() {
+		return bam;
+	}
+	
+	public String toString() {
+		return getBamFile().replaceAll(".bam","");
 	}
 	
 	private File makeFragmentFile() {

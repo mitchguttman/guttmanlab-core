@@ -20,7 +20,7 @@ import annotation.SAMFragment;
 import annotation.SingleInterval;
 import annotation.Annotation.Strand;
 import annotation.io.BEDFileIO;
-import annotation.predicate.MaximumReadLengthFilter;
+import annotation.predicate.MaximumLengthFilter;
 import annotationcollection.AnnotationCollection;
 import annotationcollection.BAMSingleReadCollection;
 import coordinatespace.CoordinateSpace;
@@ -121,7 +121,7 @@ public class BAMSingleReadTest {
 		int count = bam.getNumAnnotations();
 		System.out.println(count);
 		int count2 = bam.getNumAnnotations();
-		bam.addFilter(new MaximumReadLengthFilter<SAMFragment>(1000000));
+		bam.addFilter(new MaximumLengthFilter<SAMFragment>(1000000));
 		System.out.println(count2);
 		int count3 = bam.getNumAnnotations();
 		System.out.println(count3);
