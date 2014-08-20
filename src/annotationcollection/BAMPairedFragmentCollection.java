@@ -1,9 +1,12 @@
 package annotationcollection;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+
+import org.apache.commons.collections15.Predicate;
 
 import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMFileReader;
@@ -140,6 +143,10 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 	public CloseableIterator<PairedMappedFragment<SAMFragment>> sortedIterator(Annotation region, boolean fullyContained) {
 		//Go through the fragments iterator and parse from SAM into new format
 		SpecialBAMPECollection fragments=this.getPairedEndFragmentFile();
+		Collection<Predicate<PairedMappedFragment<SAMFragment>>> c = getFilters();
+		Iterator<Predicate<PairedMappedFragment<SAMFragment>>> iter = c.iterator();
+		while(iter.hasNext())
+			fragments.addFilter(iter.next());
 		return fragments.sortedIterator(region, fullyContained);
 	}
 
@@ -164,56 +171,60 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 
 		@Override
 		public boolean hasNext() {
-			if(fullyFormed!=null){return true;}
-			else if(iter.hasNext()){update(); return hasNext();}
-			return false;
+			if(fullyFormed!=null){ return true;}
+			//else if(iter.hasNext()){update(); return hasNext();}
+			findNext();
+			return fullyFormed!=null;
 		}
 
-		private void update() {
-			SAMFragment read=iter.next();
-
-			//When switching from chromosome we should clear cache
-			if(!read.getReferenceName().equalsIgnoreCase(currentReference)){
-				currentReference=read.getReferenceName();
-				this.partials=new TreeMap<String, Pair<SAMFragment>>();
-				this.matePosition=new IntervalTree<String>();
-			}
-
-
-			//check if read has a pair
-			boolean isPaired=read.getSamRecord().getReadPairedFlag();
-			boolean mateMapped=!read.getSamRecord().getMateUnmappedFlag();
-			boolean onSameReference=read.getSamRecord().getReferenceName().equalsIgnoreCase(read.getSamRecord().getMateReferenceName());
-
-			if(isPaired && mateMapped && onSameReference){
-				Pair<SAMFragment> pair;
-				if(partials.containsKey(read.getName())){
-					pair=partials.remove(read.getName());
+		private void findNext() {
+			while(iter.hasNext() && fullyFormed==null)
+			{			
+				SAMFragment read=iter.next();
+	
+				//When switching from chromosome we should clear cache
+				if(!read.getReferenceName().equalsIgnoreCase(currentReference)){
+					currentReference=read.getReferenceName();
+					this.partials=new TreeMap<String, Pair<SAMFragment>>();
+					this.matePosition=new IntervalTree<String>();
 				}
-				else{pair=new Pair<SAMFragment>();}
-
-				if(read.getSamRecord().getFirstOfPairFlag()){
-					if(pair.hasValue1()){System.err.println("WARN: Overriding value 1");}
-					pair.setValue1(read);
+	
+	
+				//check if read has a pair
+				boolean isPaired=read.getSamRecord().getReadPairedFlag();
+				boolean mateMapped=!read.getSamRecord().getMateUnmappedFlag();
+				boolean onSameReference=read.getSamRecord().getReferenceName().equalsIgnoreCase(read.getSamRecord().getMateReferenceName());
+	
+				if(isPaired && mateMapped && onSameReference){
+					Pair<SAMFragment> pair;
+					if(partials.containsKey(read.getName())){
+						pair=partials.remove(read.getName());
+					}
+					else{pair=new Pair<SAMFragment>();}
+	
+					if(read.getSamRecord().getFirstOfPairFlag()){
+						if(pair.hasValue1()){System.err.println("WARN: Overriding value 1");}
+						pair.setValue1(read);
+					}
+					else{
+						if(pair.hasValue2()){System.err.println("WARN: Overriding value 2");}
+						pair.setValue2(read);
+					}
+	
+					if(pair.hasValue1() && pair.hasValue2()){
+						fullyFormed=pair;
+						this.matePosition.remove(read.getSamRecord().getAlignmentStart(), read.getSamRecord().getAlignmentStart());
+					}
+					else if(read.getSamRecord().getAlignmentStart()<read.getSamRecord().getMateAlignmentStart()){
+						partials.put(read.getName(), pair);
+						this.matePosition.put(read.getSamRecord().getMateAlignmentStart(), read.getSamRecord().getMateAlignmentStart(), read.getName());
+					}
+					else{
+						//TODO Consider saving the unmapped reads
+					}
+	
+					removePartials(read);
 				}
-				else{
-					if(pair.hasValue2()){System.err.println("WARN: Overriding value 2");}
-					pair.setValue2(read);
-				}
-
-				if(pair.hasValue1() && pair.hasValue2()){
-					fullyFormed=pair;
-					this.matePosition.remove(read.getSamRecord().getAlignmentStart(), read.getSamRecord().getAlignmentStart());
-				}
-				else if(read.getSamRecord().getAlignmentStart()<read.getSamRecord().getMateAlignmentStart()){
-					partials.put(read.getName(), pair);
-					this.matePosition.put(read.getSamRecord().getMateAlignmentStart(), read.getSamRecord().getMateAlignmentStart(), read.getName());
-				}
-				else{
-					//TODO Consider saving the unmapped reads
-				}
-
-				removePartials(read);
 			}
 		}
 
@@ -296,7 +307,7 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 			this.reader=new SAMFileReader(bamFile);
 			this.referenceSpace=new CoordinateSpace(reader.getFileHeader());
 		}
-		
+
 		@Override
 		public CloseableIterator<PairedMappedFragment<SAMFragment>> sortedIterator() {
 			return new FilteredIterator<PairedMappedFragment<SAMFragment>>(new WrappedIterator(reader), getFilters());

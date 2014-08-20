@@ -3,6 +3,8 @@ package annotationcollection;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -16,6 +18,7 @@ import net.sf.samtools.util.CloseableIterator;
 import annotation.Annotation;
 import annotation.ContiguousWindow;
 import annotation.DerivedAnnotation;
+import annotation.PairedMappedFragment;
 import annotation.SAMFragment;
 import annotation.SingleInterval;
 import annotation.Window;
@@ -36,6 +39,12 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 	public void addFilter(Predicate<T> filter) {
 		filters.add(filter);
 		numAnnotations = 0;
+	}
+	
+	public void addFilter(Collection<Predicate<PairedMappedFragment<SAMFragment>>> filters) {
+		Iterator<Predicate<PairedMappedFragment<SAMFragment>>> iter = filters.iterator();
+		while(iter.hasNext())
+			filters.add(iter.next());
 	}
 
 	@Override
@@ -73,6 +82,11 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		return new WindowIterator<T>(iter, windowLength, region);
 	}
 
+	public CloseableIterator<? extends Window<T>> getWindows(Annotation region, int winSize, int stepSize) {
+		CloseableIterator<T> iter=sortedIterator(region, false);
+		return new WindowIterator<T>(iter,winSize,region,stepSize);
+	}	
+	
 	@Override
 	public int numOverlappers(Annotation region, boolean fullyContained) {
 		int counter=0;
@@ -125,6 +139,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		boolean hasNext;
 		boolean assumeForward;
 		Annotation region;
+		int stepSize;
 
 		public WindowIterator(CloseableIterator<T1> iter, int windowLength, boolean assumeForward){
 			this.iter=iter;
@@ -132,6 +147,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 			this.windows=new IntervalTree<Window<T1>>();
 			this.hasNext=false;
 			this.assumeForward=assumeForward;
+			this.stepSize=1;
 		}
 		
 		public WindowIterator(CloseableIterator<T1> iter, int windowLength)
@@ -143,6 +159,11 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		public WindowIterator(CloseableIterator<T1> iter, int windowLength,Annotation region) {
 			this(iter,windowLength,true);
 			this.region = region;
+		}
+		
+		public WindowIterator(CloseableIterator<T1> iter, int windowLength,Annotation region, int stepSize) {
+			this(iter,windowLength,region);
+			this.stepSize = stepSize;
 		}
 
 		@Override
@@ -179,11 +200,11 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 			Iterator<SingleInterval> interval=read.getBlocks();
 			while(interval.hasNext()){
 				SingleInterval block=interval.next();
-				int start=Math.max(0, block.getReferenceStartPosition()-windowLength);
+				int start=Math.max(0, roundUp(block.getReferenceStartPosition()-windowLength));
 				int end = block.getReferenceEndPosition();
 				if(region!=null)
 					end = Math.min(region.getReferenceEndPosition(), block.getReferenceEndPosition());
-				for(int i=start; i<end; i++){
+				for(int i=start; i<end; i+=stepSize){
 					Window<T1> window=windows.remove(i, i+windowLength);
 					if(window==null){
 						//make a window
@@ -194,14 +215,19 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 				}
 			}
 		}
-
+		
+		private int roundUp(int winStart)
+		{
+			return (winStart + stepSize -1) / stepSize *stepSize;
+		}
+		
 		private Collection<Window<T1>> removeFullyFormedWindows(T1 read) {
 			Iterator<Window<T1>> iter;
 			if(assumeForward)
 				{iter=windows.getNodesBeforeInterval(read.getReferenceStartPosition(), read.getReferenceStartPosition());}
 			else
 				{iter=windows.getNodesAfterInterval(read.getReferenceEndPosition(), read.getReferenceEndPosition());}
-			Collection<Window<T1>> rtrn=new ArrayList<Window<T1>>();
+			ArrayList<Window<T1>> rtrn=new ArrayList<Window<T1>>();
 			while(iter.hasNext()){
 				Window<T1> w=iter.next();
 				if((!w.getReferenceName().equalsIgnoreCase(read.getReferenceName())) || (w.getReferenceEndPosition()<read.getReferenceStartPosition())){
@@ -210,9 +236,12 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 				}
 			}
 			this.hasNext=!rtrn.isEmpty();
+			Comparator comparator = new WindowComparator();
+			Collections.sort(rtrn,comparator);
 			return rtrn;
 		}
 
+		
 		@Override
 		public void remove() {
 			this.iter.remove();
@@ -226,6 +255,13 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 
 	}
 
+	public class WindowComparator implements Comparator<Window<T>>{
+		public int compare(Window<T> win1, Window<T> win2)
+		{
+			return win1.getReferenceStartPosition()-win2.getReferenceEndPosition();
+		}
+	}
+	
 	public CoordinateSpace getFeatureCoordinateSpace(){
 		//Iterate through all records
 		CloseableIterator<T> iter=sortedIterator();
