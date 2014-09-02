@@ -2,6 +2,7 @@ package annotationcollection;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -9,10 +10,11 @@ import java.util.TreeMap;
 import net.sf.samtools.util.CloseableIterator;
 import coordinatespace.CoordinateSpace;
 import datastructures.IntervalTree;
+import datastructures.IntervalTree.Node;
 import annotation.Annotation;
 import annotation.BlockedAnnotation;
 
-public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnnotationCollection<T> {
+public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnnotationCollection<T> implements Collection<T> {
 
 	/**
 	 * The reference coordinate system that features are mapped to
@@ -30,8 +32,10 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 	/**
 	 * Add annotation to the collection
 	 * @param annotation to add
+	 * @return true iff the collection changed
 	 */
-	public void addAnnotation(T annotation){
+	public boolean addAnnotation(T annotation){
+		boolean alreadyContains = contains(annotation);
 		IntervalTree<T> tree=new IntervalTree<T>();
 		if(annotationTree.containsKey(annotation.getReferenceName())){
 			tree=annotationTree.get(annotation.getReferenceName());
@@ -39,6 +43,7 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 		tree.put(annotation.getReferenceStartPosition(), annotation.getReferenceEndPosition(), annotation);
 		annotationTree.put(annotation.getReferenceName(), tree);
 		featureCount++;
+		return !alreadyContains;
 	}
 
 	/**
@@ -115,18 +120,122 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 		@Override
 		public void remove() {
 			// TODO Auto-generated method stub
-			
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public void close() {
 			// TODO Auto-generated method stub
+			throw new UnsupportedOperationException();
 		}
 	}
 
 	public void writeToFile(String fileName, Annotation region) {
 		try{writeToFile(fileName, sortedIterator(region, false));
 		}catch(IOException ex){ex.printStackTrace();}
+	}
+
+	@Override
+	public int size() {
+		return getCount();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return size() == 0;
+	}
+
+	@Override
+	public boolean contains(Object o) {
+		T annot = (T)o;
+		String chr = annot.getReferenceName();
+		if(!annotationTree.containsKey(chr)) {
+			return false;
+		}
+		int start = annot.getReferenceStartPosition();
+		int end = annot.getReferenceEndPosition();
+		Node<T> node = annotationTree.get(chr).find(start, end);
+		if(node == null) {
+			return false;
+		}
+		return node.getContainedValues().contains(annot);
+	}
+
+	@Override
+	public Iterator<T> iterator() {
+		return sortedIterator();
+	}
+
+	@Override
+	public Object[] toArray() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public <T1> T1[] toArray(T1[] annotations) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean add(T annotation) {
+		return addAnnotation(annotation);
+	}
+
+	@Override
+	public boolean remove(Object o) {
+		T annot = (T)o;
+		String chr = annot.getReferenceName();
+		int start = annot.getReferenceStartPosition();
+		int end = annot.getReferenceEndPosition();
+		Node<T> node = annotationTree.get(chr).find(start, end);
+		if(node == null) {
+			return false;
+		}
+		boolean rtrn = node.getContainedValues().remove(annot);
+		if(rtrn) featureCount--;
+		return rtrn;
+	}
+
+	@Override
+	public boolean containsAll(Collection<?> annotations) {
+		for(Object o : annotations) {
+			if(!contains(o)) return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends T> annotations) {
+		boolean rtrn = false;
+		for(T annotation : annotations) {
+			boolean changed = add(annotation);
+			if(changed) rtrn = true;
+		}
+		return rtrn;
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> annotations) {
+		boolean rtrn = false;
+		for(Object o : annotations) {
+			boolean r = remove(o);
+			if(r) rtrn = true;
+		}
+		return rtrn;
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> annotations) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void clear() {
+		annotationTree.clear();
+		featureCount = 0;
+		for(IntervalTree<T> tree : annotationTree.values()) {
+			featureCount += tree.size();
+		}
 	}
 	
 }
