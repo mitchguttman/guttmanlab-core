@@ -82,6 +82,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		return new WindowIterator<T>(iter, windowLength, region);
 	}
 
+	@Override
 	public CloseableIterator<? extends Window<T>> getWindows(Annotation region, int winSize, int stepSize) {
 		CloseableIterator<T> iter=sortedIterator(region, false);
 		return new WindowIterator<T>(iter,winSize,region,stepSize);
