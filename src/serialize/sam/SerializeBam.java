@@ -1,4 +1,4 @@
-package serialize.util;
+package serialize.sam;
 
 import general.CommandLineParser;
 

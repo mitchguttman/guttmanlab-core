@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
@@ -108,30 +109,62 @@ public class AvroStringIndex extends AbstractAvroIndex<String> {
 
 	@Override
 	public List<GenericRecord> get(String key) throws IOException {
-		GenericData.Record first = new GenericData.Record((Record) seek(key), true);
+		return get(key, null, null);
+	}
+	
+	/**
+	 * Get all records with the key
+	 * Optionally exclude records with some attribute contained in a set of values to exclude
+	 * @param key The key to search for
+	 * @param nameOfAttributeForExclusionSet The name of the attribute to check for exclusion, or null if not using
+	 * @param attributeValuesToExclude The attribute values to exclude, or null if not using
+	 * @return The set of records with the desired key, minus records with the other attribute contained in the exclusion set
+	 * @throws IOException
+	 */
+	public List<GenericRecord> get(String key, String nameOfAttributeForExclusionSet, Collection<String> attributeValuesToExclude) throws IOException {
 		List<GenericRecord> rtrn = new ArrayList<GenericRecord>();
-		rtrn.add(first);
-		while(true) {
-			try {
-				GenericData.Record record = new GenericData.Record((Record) reader.next(), true);
-				Object currKey = record.get(indexedField);
-				int compare = 0;
-				String strCurrKey = currKey.toString();
-				compare = strCurrKey.compareTo(key);
-				if(compare == 0) {
-					rtrn.add(record);
-				} else if(compare > 0) {
-					return rtrn;
-				} else {
-					throw new IllegalStateException("Wrong sort order for keys " + key + " " + strCurrKey);
+		try {
+			GenericData.Record first = new GenericData.Record((Record) seek(key), true);
+			if(nameOfAttributeForExclusionSet != null && attributeValuesToExclude != null) {
+				String attribute = first.get(nameOfAttributeForExclusionSet).toString();
+				if(!attributeValuesToExclude.contains(attribute)) {
+					rtrn.add(first);
 				}
-			} catch(NoSuchElementException e) {
-				break;
+			} else {
+				rtrn.add(first);
 			}
+			while(true) {
+				try {
+					GenericData.Record record = new GenericData.Record((Record) reader.next(), true);
+					Object currKey = record.get(indexedField);
+					int compare = 0;
+					String strCurrKey = currKey.toString();
+					compare = strCurrKey.compareTo(key);
+					if(compare == 0) {
+						if(nameOfAttributeForExclusionSet != null && attributeValuesToExclude != null) {
+							String attribute = record.get(nameOfAttributeForExclusionSet).toString();
+							if(!attributeValuesToExclude.contains(attribute)) {
+								rtrn.add(record);
+							}
+						} else {
+							rtrn.add(record);
+						}
+					} else if(compare > 0) {
+						return rtrn;
+					} else {
+						throw new IllegalStateException("Wrong sort order for keys " + key + " " + strCurrKey);
+					}
+				} catch(NoSuchElementException e) {
+					break;
+				}
+			}
+		} catch(IllegalStateException e) {
+			logger.warn("Caught exception on query " + key);
+			logger.warn("Returned matches will be incomplete for this key.");
+			logger.warn(e.getMessage());
 		}
 		return rtrn;
 	}
 	
-
 	
 }
