@@ -223,7 +223,7 @@ public class IntervalTree<V>
 	 * @param end The interval's end.
 	 * @return The Node that represents that interval, or null.
 	 */
-	private Node<V> find( int start, int end )
+	public Node<V> find( int start, int end )
 	{
 		Node<V> node = mRoot;
 
