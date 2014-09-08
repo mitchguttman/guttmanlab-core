@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import annotationcollection.AnnotationCollection;
+
 /**
  * A class that represent a simple contiguous interval
  * This is the basis for all features
@@ -130,6 +132,12 @@ public class SingleInterval extends AbstractAnnotation{
 		if(!referenceName.equals(other.referenceName)) return false;
 		if(!featureName.equals(other.featureName)) return false;
 		return true;
+	}
+
+	@Override
+	public AnnotationCollection<DerivedAnnotation<? extends Annotation>> getWindows(
+			int windowSize, int stepSize) {
+		throw new UnsupportedOperationException();
 	}
 	
 	

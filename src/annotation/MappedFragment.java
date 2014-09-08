@@ -13,5 +13,6 @@ public interface MappedFragment extends Annotation{
 
 	public Collection<? extends ReadFlag> getReadFlags();
 	
+	public int getNumHits();
 	
 }

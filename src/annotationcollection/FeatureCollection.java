@@ -126,7 +126,7 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 		@Override
 		public void close() {
 			// TODO Auto-generated method stub
-			throw new UnsupportedOperationException();
+			//throw new UnsupportedOperationException();
 		}
 	}
 
