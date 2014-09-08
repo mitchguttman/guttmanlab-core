@@ -17,17 +17,19 @@ public class StrandFilter<T extends Annotation> implements Predicate<T> {
 	public boolean evaluate(Annotation read) {
 		//if read unknown or invalid, false
 		Strand read_dir = read.getOrientation();
-		if(read_dir.equals(Strand.BOTH))
+		if(read_dir.equals(Strand.BOTH)) {
 			return true;
-		if(read_dir.equals(Strand.INVALID) || read_dir.equals(Strand.UNKNOWN))
+		}
+		if(read_dir.equals(Strand.INVALID) || read_dir.equals(Strand.UNKNOWN)) {
 			return false;
+		}
 		//if read positive or negative
-		if(read_dir.equals(Strand.POSITIVE))
+		if(read_dir.equals(Strand.POSITIVE)) {
 			return (feat_dir.equals(Strand.BOTH) || feat_dir.equals(Strand.POSITIVE));
-
-		if(read_dir.equals(Strand.NEGATIVE))
+		}
+		if(read_dir.equals(Strand.NEGATIVE)) {
 			return (feat_dir.equals(Strand.BOTH) || feat_dir.equals(Strand.NEGATIVE));
-		
+		}
 		return false;
 	}
 
