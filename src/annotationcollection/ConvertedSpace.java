@@ -8,7 +8,7 @@ import net.sf.samtools.util.CloseableIterator;
 import coordinatespace.CoordinateSpace;
 import annotation.Annotation;
 import annotation.DerivedAnnotation;
-import annotation.Window;
+import annotation.PopulatedWindow;
 import annotation.Annotation.Strand;
 
 public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationCollection<DerivedAnnotation<T>>{
@@ -118,12 +118,12 @@ public class ConvertedSpace<T extends Annotation> extends AbstractAnnotationColl
 	}
 
 	@Override
-	public CloseableIterator<Window<DerivedAnnotation<T>>> getWindows(Annotation region, int windowLength)
+	public CloseableIterator<PopulatedWindow<DerivedAnnotation<T>>> getPopulatedWindows(Annotation region, int windowLength)
 	{
 		//get read iterator overlapping the feature		
 		CloseableIterator<DerivedAnnotation<T>> iter = sortedIterator(region,true); 
 		//pass the read iterator to WindowIterator with boolean set by orientation of the feature
-		CloseableIterator<Window<DerivedAnnotation<T>>> windows;
+		CloseableIterator<PopulatedWindow<DerivedAnnotation<T>>> windows;
 		if(region.getOrientation().equals(Strand.NEGATIVE))
 			{windows = new WindowIterator<DerivedAnnotation<T>>(iter,windowLength,true);}
 		else

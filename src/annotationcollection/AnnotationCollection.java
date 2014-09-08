@@ -11,7 +11,7 @@ import annotation.Annotation;
 import annotation.BlockedAnnotation;
 import annotation.DerivedAnnotation;
 import annotation.SAMFragment;
-import annotation.Window;
+import annotation.PopulatedWindow;
 
 /**
  * A container of annotations
@@ -104,21 +104,21 @@ public interface AnnotationCollection<T extends Annotation> {
 	public <X extends Annotation> AnnotationCollection<DerivedAnnotation<X>> convertCoordinates(AnnotationCollection<X> readCollection, CoordinateSpace referenceSpaceForAnnotations, boolean fullyContained);
 		
 	/**
-	 * Get an iterator over all windows of size widowLength overlapping a region
+	 * Get an iterator over all populated windows of size widowLength overlapping a region
 	 * @param region The region to scan
 	 * @param windowLength The length of the window
 	 * @return Iterator of windows and all of their overlapping reads of type T
 	 */
-	public CloseableIterator<? extends Window<T>> getWindows(Annotation region, int windowLength);
+	public CloseableIterator<? extends PopulatedWindow<T>> getPopulatedWindows(Annotation region, int windowLength);
 	
 	/**
-	 * Get an iterator over all windows of size widowLength overlapping a region
+	 * Get an iterator over all populated windows of size widowLength overlapping a region
 	 * @param region The region to scan
 	 * @param windowLength The length of the window
 	 * @param stepSize Step size
 	 * @return Iterator of windows and all of their overlapping reads of type T
 	 */
-	public CloseableIterator<? extends Window<T>> getWindows(Annotation region, int windowLength, int stepSize);
+	public CloseableIterator<? extends PopulatedWindow<T>> getPopulatedWindows(Annotation region, int windowLength, int stepSize);
 			
 	/**
 	 * Iterates through the annotations in sortedIterator()

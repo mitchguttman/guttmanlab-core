@@ -7,6 +7,7 @@ import java.util.Iterator;
 import datastructures.Pair;
 import annotation.Annotation.Strand;
 import annotation.predicate.ReadFlag;
+import annotationcollection.AnnotationCollection;
 
 public class PairedMappedFragment<T extends Annotation> extends AbstractAnnotation implements MappedFragment{
 
@@ -128,6 +129,17 @@ public class PairedMappedFragment<T extends Annotation> extends AbstractAnnotati
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public AnnotationCollection<DerivedAnnotation<? extends Annotation>> getWindows(
+			int windowSize, int stepSize) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int getNumHits() {
+		throw new UnsupportedOperationException();
 	}
 
 	
