@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import annotation.predicate.ReadFlag;
+import annotationcollection.AnnotationCollection;
 import net.sf.samtools.Cigar;
 import net.sf.samtools.CigarElement;
 import net.sf.samtools.CigarOperator;
@@ -18,7 +19,8 @@ public class SAMFragment extends AbstractAnnotation implements MappedFragment{
 	private boolean strandIsFirstOfPair; 
 	private Annotation annotation;
 	private Collection<? extends ReadFlag> readFlags;
-	
+	public static String SAM_NUM_HITS_TAG = "NH";
+
 	public SAMFragment(SAMRecord record){
 		this(record, false);
 	}
@@ -200,6 +202,35 @@ public class SAMFragment extends AbstractAnnotation implements MappedFragment{
 	@Override
 	public void setOrientation(Strand orientation) {
 		//Empty implementation since defined by parts
+	}
+	
+	/**
+	 * Get the value of an int SAM tag
+	 * @param tag
+	 * @return From picard documentation: returns the value of a tag or throws RuntimeException if the value is not an Integer type or will not fit in an integer
+	 */
+	public int getIntTag(String tag) {
+		return record.getIntegerAttribute(tag).intValue();
+	}
+	
+	/**
+	 * Get the value of a string SAM tag
+	 * @param tag
+	 * @return The value of the tag
+	 */
+	public String getStringTag(String tag) {
+		return record.getStringAttribute(tag);
+	}
+
+	@Override
+	public AnnotationCollection<DerivedAnnotation<? extends Annotation>> getWindows(
+			int windowSize, int stepSize) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int getNumHits() {
+		return getIntTag(SAM_NUM_HITS_TAG);
 	}
 	
 	//TODO For intersect, merge, and convert --> override and add all ReadFlags to the new object

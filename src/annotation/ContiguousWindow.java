@@ -9,7 +9,7 @@ import java.util.Iterator;
  * @author mguttman
  *
  */
-public class ContiguousWindow<T extends Annotation> extends SingleInterval implements Window<T>{
+public class ContiguousWindow<T extends Annotation> extends SingleInterval implements PopulatedWindow<T>{
 
 	Collection<T> annotations;
 	

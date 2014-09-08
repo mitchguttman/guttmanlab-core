@@ -2,7 +2,7 @@ package annotation;
 
 import java.util.Iterator;
 
-import annotation.Annotation.Strand;
+import annotationcollection.AnnotationCollection;
 import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMRecord;
 
@@ -202,6 +202,14 @@ public interface Annotation {
 	 */
 	public String getCigarString();
 
+	/**
+	 * Get sliding windows over the annotation
+	 * @param windowSize Window size
+	 * @param stepSize Step size
+	 * @return Collection of derived windows with pointers to this annotation
+	 */
+	public AnnotationCollection<DerivedAnnotation<? extends Annotation>> getWindows(int windowSize, int stepSize);
+	
 	/**
 	 * Set the orientation of this feature
 	 * @param orientation

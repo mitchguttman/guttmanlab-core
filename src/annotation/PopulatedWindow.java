@@ -3,11 +3,11 @@ package annotation;
 import java.util.Iterator;
 
 /**
- * A simple extension of a blocked annotation to account for a window
+ * A window with overlappers
  * @author mguttman
  *
  */
-public interface Window<T extends Annotation> extends Annotation{
+public interface PopulatedWindow<T extends Annotation> extends Annotation{
 
 	/**
 	 * The annotation that this Window was made from

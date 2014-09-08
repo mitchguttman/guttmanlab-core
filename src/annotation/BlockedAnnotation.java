@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import annotation.Annotation.Strand;
+import annotationcollection.AnnotationCollection;
+import annotationcollection.FeatureCollection;
 import datastructures.IntervalTree;
 import datastructures.IntervalTree.Node;
 
@@ -194,5 +196,26 @@ public class BlockedAnnotation extends AbstractAnnotation {
 	@Override
 	public void setOrientation(Strand orientation) {
 		this.orientation=orientation;
+	}
+
+	@Override
+	public AnnotationCollection<DerivedAnnotation<? extends Annotation>> getWindows(int windowSize, int stepSize) {
+		
+		FeatureCollection<DerivedAnnotation<? extends Annotation>> rtrn = new FeatureCollection<DerivedAnnotation<? extends Annotation>>(null);
+		
+		int start = 0;
+		int end = windowSize;
+		
+		while(end <= size()) {
+			Annotation windowFeatureSpace = new SingleInterval(getName(), start, end);
+			Annotation windowReferenceSpace = convertToReferenceSpace(windowFeatureSpace);
+			DerivedAnnotation<BlockedAnnotation> windowDerived = new DerivedAnnotation<BlockedAnnotation>(windowReferenceSpace, this);
+			rtrn.add(windowDerived);
+			start += stepSize;
+			end += stepSize;
+		}
+		
+		return rtrn;
+		
 	}
 }
