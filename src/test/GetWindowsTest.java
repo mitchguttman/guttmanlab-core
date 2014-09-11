@@ -22,7 +22,7 @@ import annotation.DerivedAnnotation;
 import annotation.Gene;
 import annotation.SAMFragment;
 import annotation.SingleInterval;
-import annotation.Window;
+import annotation.PopulatedWindow;
 import annotation.io.BEDFileIO;
 import annotationcollection.AnnotationCollection;
 import annotationcollection.BAMSingleReadCollection;
@@ -69,12 +69,12 @@ public class GetWindowsTest {
 		
 		iter.close();
 		
-		CloseableIterator<? extends Window<SAMFragment>> windows = bam.getWindows(a, 50);
+		CloseableIterator<? extends PopulatedWindow<SAMFragment>> windows = bam.getPopulatedWindows(a, 50);
 		
 		int count = 0;
 		while(windows.hasNext())
 		{
-			Window<SAMFragment> win = windows.next();
+			PopulatedWindow<SAMFragment> win = windows.next();
 			int reads = win.getNumberOfAnnotationsInWindow();
 
 			if(map1.containsKey(reads))
@@ -105,12 +105,12 @@ public class GetWindowsTest {
 		}
 		
 		iter.close();
-		CloseableIterator<? extends Window<SAMFragment>> windows = bam.getWindows(a, 50);
+		CloseableIterator<? extends PopulatedWindow<SAMFragment>> windows = bam.getPopulatedWindows(a, 50);
 		
 		int winCount = 0;
 		while(windows.hasNext())
 		{
-			Window<SAMFragment> win = windows.next();
+			PopulatedWindow<SAMFragment> win = windows.next();
 			winCount++;
 			int reads = win.getNumberOfAnnotationsInWindow();
 			int count = 0;
@@ -145,12 +145,12 @@ public class GetWindowsTest {
 		Annotation b = new SingleInterval(a.getName(), 0, a.size()-1);
 		b.setOrientation(Strand.BOTH);
 		AnnotationCollection<DerivedAnnotation<SAMFragment>> converted = features.convertCoordinates(bam, refSpace, true);
-		CloseableIterator<? extends Window<DerivedAnnotation<SAMFragment>>> windows = converted.getWindows(b, 50);
+		CloseableIterator<? extends PopulatedWindow<DerivedAnnotation<SAMFragment>>> windows = converted.getPopulatedWindows(b, 50);
 
 		int winCount = 0;
 		while(windows.hasNext())
 		{
-			Window<DerivedAnnotation<SAMFragment>> win = windows.next();
+			PopulatedWindow<DerivedAnnotation<SAMFragment>> win = windows.next();
 			winCount++;
 			int reads = win.getNumberOfAnnotationsInWindow();
 			int count = 0;

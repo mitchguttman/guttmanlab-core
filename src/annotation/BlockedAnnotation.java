@@ -3,6 +3,8 @@ package annotation;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.log4j.Logger;
+
 import annotation.Annotation.Strand;
 import annotationcollection.AnnotationCollection;
 import annotationcollection.FeatureCollection;
@@ -21,6 +23,7 @@ public class BlockedAnnotation extends AbstractAnnotation {
 	private String name;
 	private Strand orientation;
 	private int numBlocks;
+	private static Logger logger = Logger.getLogger(BlockedAnnotation.class.getName());
 	
 	/**
 	 * An empty constructor
@@ -203,16 +206,22 @@ public class BlockedAnnotation extends AbstractAnnotation {
 		
 		FeatureCollection<DerivedAnnotation<? extends Annotation>> rtrn = new FeatureCollection<DerivedAnnotation<? extends Annotation>>(null);
 		
-		int start = 0;
-		int end = windowSize;
+		boolean plusStrand = getOrientation().equals(Strand.NEGATIVE) ? false : true;
+		int featureStart = plusStrand ? 0 : size - windowSize;
+		int featureEnd = featureStart + windowSize;
 		
-		while(end <= size()) {
-			Annotation windowFeatureSpace = new SingleInterval(getName(), start, end);
+		while(featureEnd <= size && featureStart >= 0) {
+			Annotation windowFeatureSpace = new SingleInterval(getName(), featureStart, featureEnd);
 			Annotation windowReferenceSpace = convertToReferenceSpace(windowFeatureSpace);
 			DerivedAnnotation<BlockedAnnotation> windowDerived = new DerivedAnnotation<BlockedAnnotation>(windowReferenceSpace, this);
 			rtrn.add(windowDerived);
-			start += stepSize;
-			end += stepSize;
+			if(plusStrand) {
+				featureStart += stepSize;
+				featureEnd += stepSize;
+			} else {
+				featureStart -= stepSize;
+				featureEnd -= stepSize;
+			}
 		}
 		
 		return rtrn;

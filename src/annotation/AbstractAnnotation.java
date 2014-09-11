@@ -2,6 +2,8 @@ package annotation;
 
 import java.util.Iterator;
 
+import org.apache.log4j.Logger;
+
 import annotation.Annotation.Strand;
 import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMRecord;
@@ -13,6 +15,8 @@ import net.sf.samtools.SAMRecord;
  */
 public abstract class AbstractAnnotation implements Annotation {
 
+	private static Logger logger = Logger.getLogger(AbstractAnnotation.class.getName());
+	
 	@Override
 	public Annotation intersect(Annotation other) {
 		BlockedAnnotation rtrn=new BlockedAnnotation();
@@ -192,13 +196,14 @@ public abstract class AbstractAnnotation implements Annotation {
 		
 		while(blocks.hasNext()){
 			SingleInterval block=blocks.next();
+			int origBlockSize = block.size();
 			SingleInterval featureSpaceBlock=new SingleInterval(getName(), sumBlocks, sumBlocks+block.size());
 
 			if(getOrientation().equals(Strand.NEGATIVE))
 			{
-				featureSpaceBlock= new SingleInterval(getName(), size()-(sumBlocks+block.size()),size()-sumBlocks);
+				featureSpaceBlock= new SingleInterval(getName(), size()-(sumBlocks+block.size()),size()-sumBlocks); //TODO WRONG
 			}
-			
+						
 			if(featureAnnotation.overlaps(featureSpaceBlock)){
 				//trim it, add it
 				int shiftStart=0;
@@ -213,7 +218,7 @@ public abstract class AbstractAnnotation implements Annotation {
 				
 				rtrn.addBlock(block);
 			}
-			sumBlocks=sumBlocks+block.size();
+			sumBlocks=sumBlocks+origBlockSize;
 		}
 		return rtrn;
 		
