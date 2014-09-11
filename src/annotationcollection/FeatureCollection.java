@@ -2,11 +2,13 @@ package annotationcollection;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import sun.nio.cs.ext.TIS_620;
 import net.sf.samtools.util.CloseableIterator;
 import coordinatespace.CoordinateSpace;
 import datastructures.IntervalTree;
@@ -80,7 +82,32 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 		Iterator<T> iter=tree.overlappingValueIterator(region.getReferenceStartPosition(), region.getReferenceEndPosition());
 		return new FilteredIterator<T>(iter, getFilters());
 	}
-
+	
+	@Override
+	public FeatureCollection<T> merge() {
+		CloseableIterator<T> old = sortedIterator();
+		FeatureCollection<T> merged = new FeatureCollection<T>(referenceCoordinateSpace);
+		T current = null;
+		if(old.hasNext())
+			current = old.next();
+		while(old.hasNext())
+		{
+			T next = old.next();
+			if(current.overlaps(next))
+			{
+				current = (T) current.merge(next);
+				System.out.println(current.toBED());
+			}
+			else
+			{
+				merged.add(current);
+				current = next;
+			}
+		}
+		if(current != null)
+			merged.add(current);
+		return merged;
+	}
 	/**
 	 * @return The coordinateSpace of the reference for this annotation collection
 	 */

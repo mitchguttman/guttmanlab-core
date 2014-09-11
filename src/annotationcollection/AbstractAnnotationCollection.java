@@ -170,14 +170,17 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		@Override
 		public boolean hasNext() {
 			if(fullyFormedWindows!=null && fullyFormedWindows.hasNext()){return true;}
-			else if(iter.hasNext()){updateWindows(); return hasNext();}
-			else if(!iter.hasNext() && !windows.isEmpty())
-			{
-				updateRemainingWindows();
-				return hasNext();
-			}
+			//else if(iter.hasNext()){updateWindows(); return hasNext();}
+			//else if(!iter.hasNext() && !windows.isEmpty())
+			//{
+			//	updateRemainingWindows();
+			//	return hasNext();
+			//}
 			
-			return false;
+			updateWindows();
+			return (fullyFormedWindows!=null && fullyFormedWindows.hasNext());
+			
+			//return false;
 		}
 
 		private void updateRemainingWindows(){
@@ -190,10 +193,16 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		}
 
 		private void updateWindows(){
-			T1 read=iter.next();
-			//all windows with an end position before the start of this window
-			fullyFormedWindows=removeFullyFormedWindows(read).iterator();
-			addReadToWindows(read);
+			while((fullyFormedWindows==null || !fullyFormedWindows.hasNext()) && iter.hasNext())
+			{	T1 read=iter.next();
+				//all windows with an end position before the start of this window
+				fullyFormedWindows=removeFullyFormedWindows(read).iterator();
+				addReadToWindows(read);
+			}
+			if((fullyFormedWindows==null || !fullyFormedWindows.hasNext()) && !windows.isEmpty())
+			{
+				updateRemainingWindows();
+			}
 		}
 
 		private void addReadToWindows(T1 read){
