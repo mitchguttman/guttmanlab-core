@@ -34,7 +34,7 @@ public interface AvroIndex<T extends Comparable<T>> {
 	 * @return The first record with this key, which should be the current record for the data reader
 	 * @throws IOException
 	 */
-	public GenericRecord seek(T key) throws IOException;
+	public <P extends GenericRecord> P seek(T key) throws IOException;
 	
 	/**
 	 * Get an ordered list of all records with this key
@@ -42,6 +42,6 @@ public interface AvroIndex<T extends Comparable<T>> {
 	 * @return List of records
 	 * @throws IOException 
 	 */
-	public List<GenericRecord> get(T key) throws IOException;
+	public <P extends GenericRecord> List<P> get(T key) throws IOException;
 
 }

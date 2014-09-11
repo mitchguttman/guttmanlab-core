@@ -83,6 +83,7 @@ public class AvroStringIndex extends AbstractAvroIndex<String> {
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public GenericRecord seek(String key) throws IOException {
 		seekToBlockStart(key);
