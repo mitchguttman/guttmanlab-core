@@ -91,9 +91,8 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 	@Override
 	public int numOverlappers(Annotation region, boolean fullyContained) {
 		int counter=0;
-		//TODO Bug in single reads only. Not sortedIterator(). Only in sortedIterator(region...)
 		CloseableIterator<T> iter=sortedIterator(region, fullyContained);
-		while(iter.hasNext()){ //TODO never enters loop
+		while(iter.hasNext()){
 			iter.next();
 			counter++;
 		}

@@ -87,18 +87,19 @@ public class SAMFragment extends AbstractAnnotation implements MappedFragment{
 	}
 	
 	 /**
-     * Populate the blocks from a Cigar string
-     * @param cigarString
-     * @param chr
-     * @param start
-	 * @param strand 
+     * Populate an annotation from a Cigar string
+     * @param cigarString Cigar string
+     * @param chr Fragment reference sequence
+     * @param start Fragment start
+	 * @param strand Fragment strand
+	 * @param name Name of annotation to return
      * @return A blocked annotation
      */
-	private Annotation parseCigar(String cigarString, String chr, int start, Strand strand, String name) {
+	public static Annotation parseCigar(String cigarString, String chr, int start, Strand strand, String name) {
     	Cigar cigar = TextCigarCodec.getSingleton().decode(cigarString);
     	List<CigarElement> elements=cigar.getCigarElements();
 		
-    	BlockedAnnotation rtrn=new BlockedAnnotation(getName());
+    	BlockedAnnotation rtrn=new BlockedAnnotation(name);
     	
 		int currentOffset = start;
 		
@@ -234,4 +235,6 @@ public class SAMFragment extends AbstractAnnotation implements MappedFragment{
 	}
 	
 	//TODO For intersect, merge, and convert --> override and add all ReadFlags to the new object
+
+	
 }
