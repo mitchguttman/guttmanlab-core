@@ -6,9 +6,9 @@ import net.sf.samtools.util.CloseableIterator;
 
 import org.junit.Test;
 
-import annotation.BAMFragmentCollectionFactory;
 import annotation.MappedFragment;
 import annotationcollection.AbstractAnnotationCollection;
+import annotationcollection.BAMFragmentCollectionFactory;
 
 public class BamCollectionFactoryTest {
 

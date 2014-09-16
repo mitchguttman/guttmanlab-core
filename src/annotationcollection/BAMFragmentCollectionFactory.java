@@ -1,4 +1,4 @@
-package annotation;
+package annotationcollection;
 
 import java.io.File;
 
@@ -8,9 +8,7 @@ import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMRecordIterator;
 
-import annotationcollection.AbstractAnnotationCollection;
-import annotationcollection.BAMPairedFragmentCollection;
-import annotationcollection.BAMSingleReadCollection;
+import annotation.MappedFragment;
 
 /**
  * Get bam collection as single or paired end by checking the file
