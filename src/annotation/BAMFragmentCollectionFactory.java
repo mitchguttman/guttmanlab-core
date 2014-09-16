@@ -1,0 +1,101 @@
+package annotation;
+
+import java.io.File;
+
+import org.apache.log4j.Logger;
+
+import net.sf.samtools.SAMFileReader;
+import net.sf.samtools.SAMRecord;
+import net.sf.samtools.SAMRecordIterator;
+
+import annotationcollection.AbstractAnnotationCollection;
+import annotationcollection.BAMPairedFragmentCollection;
+import annotationcollection.BAMSingleReadCollection;
+
+/**
+ * Get bam collection as single or paired end by checking the file
+ * @author prussell
+ *
+ */
+public class BAMFragmentCollectionFactory {
+	
+	private static Logger logger = Logger.getLogger(BAMFragmentCollectionFactory.class.getName());
+	
+	/**
+	 * @param bamFile Bam file
+	 * @return True iff the file contains paired reads
+	 */
+	public static boolean isPairedEnd(String bamFile) {
+		return isPairedEnd(new File(bamFile));
+	}
+	
+	/**
+	 * @param bamFile Bam file
+	 * @return True iff the file contains paired reads
+	 */
+	public static boolean isPairedEnd(File bamFile) {
+		SAMFileReader reader = new SAMFileReader(bamFile);
+		SAMRecordIterator iter = reader.iterator();
+		if(!iter.hasNext()) {
+			reader.close();
+			throw new IllegalArgumentException("Bam file is empty");
+		}
+		SAMRecord firstRecord = iter.next();
+		reader.close();
+		return firstRecord.getReadPairedFlag();
+	}
+	
+	/**
+	 * Get an appropriate implementation of annotation collection depending on whether the reads are paired
+	 * @param bamFile Bam file
+	 * @return Single or paired end read collection
+	 */
+	public static AbstractAnnotationCollection<? extends MappedFragment> createFromBam(String bamFile) {
+		return createFromBam(new File(bamFile));
+	}
+	
+	/**
+	 * Get an appropriate implementation of annotation collection depending on whether the reads are paired
+	 * @param bamFile Bam file
+	 * @return Single or paired end read collection
+	 */
+	public static AbstractAnnotationCollection<? extends MappedFragment> createFromBam(File bamFile) {
+		return createFromBam(bamFile, false);
+	}
+	
+	/**
+	 * Get an appropriate implementation of annotation collection depending on whether the reads are paired
+	 * Optionally force single end implementation
+	 * @param bamFile Bam file
+	 * @param forceSingleEnd Treat reads as single end even if they are paired
+	 * @return Single or paired end read collection
+	 */
+	public static AbstractAnnotationCollection<? extends MappedFragment> createFromBam(String bamFile, boolean forceSingleEnd) {
+		return createFromBam(new File(bamFile), forceSingleEnd);
+	}
+	
+	/**
+	 * Get an appropriate implementation of annotation collection depending on whether the reads are paired
+	 * Optionally force single end implementation
+	 * @param bamFile Bam file
+	 * @param forceSingleEnd Treat reads as single end even if they are paired
+	 * @return Single or paired end read collection
+	 */
+	public static AbstractAnnotationCollection<? extends MappedFragment> createFromBam(File bamFile, boolean forceSingleEnd) {
+		
+		if(forceSingleEnd) {
+			logger.info("Reading bam file " + bamFile.getName() + " and forcing single end implementation.");
+			return new BAMSingleReadCollection(bamFile);
+		}
+		
+		if(isPairedEnd(bamFile)) {
+			logger.info("Reading bam file " + bamFile.getName() + " as paired ends.");
+			return new BAMPairedFragmentCollection(bamFile);
+		}
+		
+		logger.info("Reading bam file " + bamFile.getName() + " as single ends.");
+		return new BAMSingleReadCollection(bamFile);
+		
+	}
+	
+}
