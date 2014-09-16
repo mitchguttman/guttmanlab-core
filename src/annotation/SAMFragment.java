@@ -195,7 +195,7 @@ public class SAMFragment extends AbstractAnnotation implements MappedFragment{
 		return record.getMateReferenceName();
 	}
 
-	public Object getReadOrientation() {
+	public Strand getReadOrientation() {
 		if(this.getSamRecord().getReadNegativeStrandFlag()){return Strand.NEGATIVE;}
 		return Strand.POSITIVE;
 	}

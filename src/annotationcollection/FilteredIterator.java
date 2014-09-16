@@ -9,6 +9,9 @@ import net.sf.samtools.util.CloseableIterator;
 import org.apache.commons.collections15.Predicate;
 
 import annotation.Annotation;
+import annotation.Annotation.Strand;
+import annotation.SAMFragment;
+import annotation.predicate.StrandFilter;
 
 public class FilteredIterator<T extends Annotation> implements CloseableIterator<T>{
 
@@ -16,6 +19,7 @@ public class FilteredIterator<T extends Annotation> implements CloseableIterator
 		Collection<Predicate<T>> filters;
 		T next;
 		boolean started;
+		StrandFilter<T> sf;
 		
 		public FilteredIterator(CloseableIterator<T> iter, Collection<Predicate<T>> filters){
 			this.iter=iter;
@@ -33,6 +37,13 @@ public class FilteredIterator<T extends Annotation> implements CloseableIterator
 			this.filters=filters;
 		}
 		
+		public FilteredIterator(Iterator<T> iter,Collection<Predicate<T>> filters, Strand region) {
+			this.iter=new CloseableWrapper(iter);
+			this.filters=filters;
+			this.sf = new StrandFilter<T>(region);
+			this.filters.add(sf);
+		}
+
 		@Override
 		public boolean hasNext() {
 			if(!started){next=findNext(); started=true;}
@@ -69,6 +80,8 @@ public class FilteredIterator<T extends Annotation> implements CloseableIterator
 
 		@Override
 		public void close() {
+			if(sf!=null)
+				filters.remove(sf);
 			iter.close();
 		}
 	

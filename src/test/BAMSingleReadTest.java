@@ -45,7 +45,7 @@ public class BAMSingleReadTest {
 		this.features = io.loadFromFile(fname);
 	}
 
-	@Test //Pass
+	//@Test //Pass
 	//Tests that the sortedIterator returns reads that only overlap blocks, and not introns
 	public void SortedIteratorBlockTest() {
 		
@@ -88,7 +88,7 @@ public class BAMSingleReadTest {
 	}
 	
 
-	@Test
+	//@Test
 	public void IteratorStrandMatchingTest() throws IOException{
 		//System.out.println("\n\nCcdc87 Mapped Reads:");
 		CloseableIterator<Gene> iter = features.sortedIterator();
@@ -117,6 +117,39 @@ public class BAMSingleReadTest {
 	}
 	
 	@Test
+	public void MultipleSortedIteratorsOnSameCollection() throws IOException{
+
+		Annotation a = new SingleInterval("chr19", 30267000, 30272000, Strand.POSITIVE);
+		
+		int count =0;
+		CloseableIterator<SAMFragment> f_iter = bam.sortedIterator(a, false);
+		while(f_iter.hasNext())
+		{
+			SAMFragment f = f_iter.next();
+			System.out.println(f.toBED());
+			count++;
+		}
+		
+		f_iter.close();
+		assertEquals("2 positive reads should overlap region.",2,count);
+		
+		Annotation a2 = new SingleInterval("chr19", 30267000, 30272000, Strand.NEGATIVE);
+		System.out.println(a.overlaps(a2));
+		count =0;
+		CloseableIterator<SAMFragment> f_iter2 = bam.sortedIterator(a2, false);
+		while(f_iter2.hasNext())
+		{
+			SAMFragment f = f_iter2.next();
+			count++;
+		}
+		
+		f_iter2.close();
+		assertEquals("6 negative reads should overlap region.",6,count); 
+		
+	}
+	
+	
+	//@Test
 	public void AnnotationCollectionGetCount() {
 		int count = bam.getNumAnnotations();
 		System.out.println(count);

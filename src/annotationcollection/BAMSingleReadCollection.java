@@ -54,8 +54,7 @@ public class BAMSingleReadCollection extends AbstractAnnotationCollection<SAMFra
 	@Override
 	public CloseableIterator<SAMFragment> sortedIterator(Annotation region, boolean fullyContained) {
 		CloseableIteratorChain iter_chain = new CloseableIteratorChain(region);
-		addFilter(new StrandFilter<SAMFragment>(region.getOrientation()));
-		return new FilteredIterator<SAMFragment>(iter_chain, getFilters());
+		return new FilteredIterator<SAMFragment>(iter_chain, getFilters(),region.getOrientation());
 	}
 	
 	public class CloseableIteratorChain implements Iterator<SAMFragment>{
