@@ -237,4 +237,11 @@ public interface Annotation {
 	 */
 	public Annotation trim(int start, int end);
 	
+	/**
+	 * 
+	 * @param other annotation to be compared with
+	 * @return -1,1,or 0 based on natural ordering defined in Abstract Annotation
+	 */
+	int compareTo(Annotation other);
+	
 }

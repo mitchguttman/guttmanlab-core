@@ -292,4 +292,50 @@ public abstract class AbstractAnnotation implements Annotation {
 		return a;
 	}
 	
+	@Override
+	public int compareTo (Annotation other) {
+		return compareToAnnotation(other);
+	}
+	
+	
+	public int compareToAnnotation(Annotation b) {
+		return compareToAnnotation(b, true);
+	}
+	
+	public int compareToAnnotation(Annotation b, boolean useOrientation) {
+		//TODO: verify correct behavior
+		int comp = getReferenceName().compareTo(b.getReferenceName());
+		if(comp!=0){return comp;}
+		
+		//second sort by start coordinate
+		comp=getReferenceStartPosition() - b.getReferenceStartPosition();
+		if(comp!=0){return comp;}
+		
+		//third sort by end coordinate
+		comp=getReferenceEndPosition()-b.getReferenceEndPosition();
+		if(comp!=0){return comp;}
+		
+		//fourth sort by strand
+		if (useOrientation) {
+			comp=getOrientation().compareTo(b.getOrientation());
+			if(comp!=0){return comp;}
+		}
+		
+		//Fifth sort by number of blocks
+		comp=getNumberOfBlocks()-b.getNumberOfBlocks();
+		if(comp!=0){return comp;}
+		
+		//Sixth sort by position of the blocks (in order scan)
+		if(b.getNumberOfBlocks()>1){
+			Iterator<SingleInterval> blocks = getBlocks();
+			Iterator<SingleInterval> b_blocks = b.getBlocks();
+			while(blocks.hasNext()){ //must have same number of blocks
+				Annotation ann1=blocks.next();
+				Annotation ann2=b_blocks.next();
+				comp=ann1.compareTo(ann2);
+				if(comp!=0){return comp;}
+			}
+		}
+		return 0;
+	}
 }
