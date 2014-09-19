@@ -125,7 +125,7 @@ public class GetWindowsTest {
 		}
 		
 		System.out.println(map1.toString());
-		assertEquals("shoud return 3370 nonempty windows of size 50",3370,winCount);
+		assertEquals("shoud return 3226 nonempty windows of size 50",3226,winCount);
 	}
 	
 	@Test
@@ -166,6 +166,21 @@ public class GetWindowsTest {
 		
 		System.out.println(map1.toString());
 		assertEquals("converted coordinates windows",3177,winCount);
+	}
+	
+	@Test
+	public void SimpleWIndowsTest() {
+		SingleInterval fifty = new SingleInterval("chr19",5843330,5843380,Strand.BOTH);
+		int count = 0;
+		CloseableIterator<? extends PopulatedWindow<SAMFragment>> windows = bam.getPopulatedWindows(fifty, 1);
+		while(windows.hasNext())
+		{
+			PopulatedWindow<SAMFragment> win = windows.next();
+			System.out.println(win.toBED());
+			count++;
+		}
+		System.out.println(count);
+		assertEquals("there should be 50 windows.",50,count);
 	}
 	
 }

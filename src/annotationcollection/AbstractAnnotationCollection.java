@@ -210,7 +210,11 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 			Iterator<SingleInterval> interval=read.getBlocks();
 			while(interval.hasNext()){
 				SingleInterval block=interval.next();
-				int start=Math.max(0, roundUp(block.getReferenceStartPosition()-windowLength));
+				int start = 0;
+				if(region!=null)
+					start=Math.max(roundUp(region.getReferenceStartPosition()-windowLength+1), roundUp(block.getReferenceStartPosition()-windowLength));
+				else
+					start = Math.max(0,roundUp(block.getReferenceStartPosition()-windowLength));
 				int end = block.getReferenceEndPosition();
 				if(region!=null)
 					end = Math.min(region.getReferenceEndPosition(), block.getReferenceEndPosition());
