@@ -88,6 +88,11 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		return new WindowIterator<T>(iter,winSize,region,stepSize);
 	}	
 	
+	public CloseableIterator<? extends PopulatedWindow<T>> getPopulatedWindows(Annotation region, int winSize, int stepSize, boolean includeEmpties) {
+		CloseableIterator<T> iter=sortedIterator(region, false);
+		return new WindowIterator<T>(iter,winSize,region,stepSize,includeEmpties);
+	}
+	
 	@Override
 	public int numOverlappers(Annotation region, boolean fullyContained) {
 		int counter=0;
@@ -141,7 +146,11 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		boolean assumeForward;
 		Annotation region;
 		int stepSize;
-
+		boolean includeEmpties;
+		
+		PopulatedWindow<T1> nextWin;
+		int nextPos;
+		
 		public WindowIterator(CloseableIterator<T1> iter, int windowLength, boolean assumeForward){
 			this.iter=iter;
 			this.windowLength=windowLength;
@@ -149,6 +158,8 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 			this.hasNext=false;
 			this.assumeForward=assumeForward;
 			this.stepSize=1;
+			this.includeEmpties=false;
+			
 		}
 		
 		public WindowIterator(CloseableIterator<T1> iter, int windowLength)
@@ -160,6 +171,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		public WindowIterator(CloseableIterator<T1> iter, int windowLength,Annotation region) {
 			this(iter,windowLength,true);
 			this.region = region;
+			this.nextPos = region.getReferenceStartPosition();
 		}
 		
 		public WindowIterator(CloseableIterator<T1> iter, int windowLength,Annotation region, int stepSize) {
@@ -167,9 +179,17 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 			this.stepSize = stepSize;
 		}
 
+		public WindowIterator(CloseableIterator<T1> iter, int windowLength,Annotation region, int stepSize, boolean includeEmpties)
+		{
+			this(iter,windowLength,region);
+			this.stepSize = stepSize;
+			this.includeEmpties = includeEmpties;
+		}
+		
 		@Override
 		public boolean hasNext() {
 			if(fullyFormedWindows!=null && fullyFormedWindows.hasNext()){return true;}
+			boolean hasEmpties = (includeEmpties && region!=null && nextPos < region.getReferenceEndPosition());
 			//else if(iter.hasNext()){updateWindows(); return hasNext();}
 			//else if(!iter.hasNext() && !windows.isEmpty())
 			//{
@@ -178,7 +198,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 			//}
 			
 			updateWindows();
-			return (fullyFormedWindows!=null && fullyFormedWindows.hasNext());
+			return (hasEmpties || fullyFormedWindows!=null && fullyFormedWindows.hasNext());
 			
 			//return false;
 		}
@@ -187,9 +207,33 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 			fullyFormedWindows = windows.valueIterator();
 			windows = new IntervalTree<PopulatedWindow<T1>>();
 		}
+		
 		@Override
 		public PopulatedWindow<T1> next() {
-			return fullyFormedWindows.next();
+			PopulatedWindow<T1> rtrn;
+			
+			if(nextWin == null)
+			{
+				if(fullyFormedWindows!=null && fullyFormedWindows.hasNext())
+					nextWin = fullyFormedWindows.next();
+				else
+				{
+					nextPos++;
+					return new ContiguousWindow<T1>(region.getName(), nextPos, nextPos+windowLength, Strand.BOTH);
+
+				}
+			}
+			
+			if(!includeEmpties || nextWin.getReferenceStartPosition()==nextPos)
+			{
+				rtrn = nextWin;
+				nextWin = null;
+			}
+			else
+				rtrn = new ContiguousWindow<T1>(region.getName(), nextPos, nextPos+windowLength, Strand.BOTH);
+			
+			nextPos++;
+			return rtrn;
 		}
 
 		private void updateWindows(){

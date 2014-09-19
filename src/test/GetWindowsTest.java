@@ -179,8 +179,34 @@ public class GetWindowsTest {
 			System.out.println(win.toBED());
 			count++;
 		}
+		windows.close();
 		System.out.println(count);
 		assertEquals("there should be 50 windows.",50,count);
+	}
+	
+	@Test
+	public void MissingWindowsTest() {
+		Annotation a = new SingleInterval("chr19",5845800,5847200,Strand.BOTH);
+		CloseableIterator<? extends PopulatedWindow<SAMFragment>> windows = bam.getPopulatedWindows(a, 1);
+		int count = 0;
+		while(windows.hasNext())
+		{
+			PopulatedWindow<SAMFragment> win = windows.next();
+			count++;
+		}
+		windows.close();
+		assertEquals("nonzero windows = ?",435,count);
+		
+		CloseableIterator<? extends PopulatedWindow<SAMFragment>> all_windows = bam.getPopulatedWindows(a, 1, 1, true);
+		count = 0;
+		while(all_windows.hasNext())
+		{
+			PopulatedWindow<SAMFragment> win = all_windows.next();
+			System.out.println(win.toBED());
+			count++;
+		}
+		
+		assertEquals("all windows = 1400",1400,count);
 	}
 	
 }
