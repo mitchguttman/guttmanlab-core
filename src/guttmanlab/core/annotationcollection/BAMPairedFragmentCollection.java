@@ -215,11 +215,11 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 					else{pair=new Pair<SAMFragment>();}
 	
 					if(read.getSamRecord().getFirstOfPairFlag()){
-						if(pair.hasValue1()){System.err.println("WARN: Overriding value 1");}
+						//if(pair.hasValue1()){System.err.println("WARN: Overriding value 1");}
 						pair.setValue1(read);
 					}
 					else{
-						if(pair.hasValue2()){System.err.println("WARN: Overriding value 2");}
+						//if(pair.hasValue2()){System.err.println("WARN: Overriding value 2");}
 						pair.setValue2(read);
 					}
 	

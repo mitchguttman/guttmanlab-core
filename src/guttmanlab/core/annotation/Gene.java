@@ -58,6 +58,7 @@ public class Gene extends BlockedAnnotation{
 		return rtrn;
 	}
 	
+	//TODO wite tests
 	public Collection<SingleInterval> getIntronSet()
 	{
 		Collection<SingleInterval> introns = new ArrayList<SingleInterval>();

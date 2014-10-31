@@ -230,15 +230,22 @@ public abstract class AbstractAnnotation implements Annotation {
 	public String getCigarString(){
 		Iterator<SingleInterval> blocks=getBlocks();
 		String cigar="";
+		int distance = 0;
 		
 		int lastEnd=-1;
 		while(blocks.hasNext()){
 			SingleInterval block=blocks.next();
 			if(lastEnd>0){
-				int distance=block.getReferenceStartPosition()-lastEnd;
-				cigar+=distance+"N";
+				distance=block.getReferenceStartPosition()-lastEnd;
+				if (distance > 0)
+					cigar+=distance+"N";
 			}
-			cigar+=block.size()+"M";
+			int m = block.size();
+			if (distance < 0)
+				m = m - distance;
+			if ( m < 0 )
+				System.err.println("inner read distance is negative.");
+			cigar+=m+"M";
 			lastEnd=block.getReferenceEndPosition();
 		}
 		return cigar;

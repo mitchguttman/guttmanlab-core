@@ -119,6 +119,17 @@ public interface AnnotationCollection<T extends Annotation> {
 	 * @return Iterator of windows and all of their overlapping reads of type T
 	 */
 	public CloseableIterator<? extends PopulatedWindow<T>> getPopulatedWindows(Annotation region, int windowLength, int stepSize);
+	
+	/**
+	 * Get an iterator over all populated windows of size widowLength overlapping a region
+	 * @param region The region to scan
+	 * @param windowLength The length of the window
+	 * @param stepSize Step size
+	 * @param includeEmpties Also return windows with zero overlappers
+	 * @return Iterator of windows and all of their overlapping reads of type T
+	 */
+	public CloseableIterator<? extends PopulatedWindow<T>> getPopulatedWindows(Annotation region, int windowLength, int stepSize, boolean includeEmpties);
+	
 			
 	/**
 	 * Iterates through the annotations in sortedIterator()

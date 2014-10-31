@@ -97,7 +97,7 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 			if(current.overlaps(next))
 			{
 				current = (T) current.merge(next);
-				System.out.println(current.toBED());
+				//System.out.println(current.toBED());
 			}
 			else
 			{

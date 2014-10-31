@@ -89,6 +89,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		return new WindowIterator<T>(iter,winSize,region,stepSize);
 	}	
 	
+	@Override
 	public CloseableIterator<? extends PopulatedWindow<T>> getPopulatedWindows(Annotation region, int winSize, int stepSize, boolean includeEmpties) {
 		CloseableIterator<T> iter=sortedIterator(region, false);
 		return new WindowIterator<T>(iter,winSize,region,stepSize,includeEmpties);
@@ -111,6 +112,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		writeToBAM(fileName, sortedIterator());
 	}
 	
+
 	@Override
 	public void writeToBAM(String fileName, Annotation region, boolean fullyContained){
 		writeToBAM(fileName, sortedIterator(region, fullyContained));
@@ -314,12 +316,14 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 	}
 
 	public class WindowComparator implements Comparator<PopulatedWindow<T>>{
+		@Override
 		public int compare(PopulatedWindow<T> win1, PopulatedWindow<T> win2)
 		{
 			return win1.getReferenceStartPosition()-win2.getReferenceEndPosition();
 		}
 	}
 	
+	@Override
 	public CoordinateSpace getFeatureCoordinateSpace(){
 		//Iterate through all records
 		CloseableIterator<T> iter=sortedIterator();
@@ -334,6 +338,7 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		return new CoordinateSpace(sizes);
 	}
 	
+	@Override
 	public int getNumAnnotations(){
 		if(this.numAnnotations != 0)
 			return this.numAnnotations;
