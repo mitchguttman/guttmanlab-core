@@ -210,6 +210,21 @@ public class FeatureCollection<T extends BlockedAnnotation> extends AbstractAnno
 	}
 
 	@Override
+	public boolean overlaps(Annotation other) {
+		if(!annotationTree.containsKey(other.getReferenceName())) {
+			return false;
+		}
+		Iterator<T> overlappers = annotationTree.get(other.getReferenceName()).overlappingValueIterator(other.getReferenceStartPosition(), other.getReferenceEndPosition());
+		while(overlappers.hasNext()) {
+			T annot = overlappers.next();
+			if(other.overlaps(annot)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
 	public boolean remove(Object o) {
 		T annot = (T)o;
 		String chr = annot.getReferenceName();

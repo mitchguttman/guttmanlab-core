@@ -41,7 +41,7 @@ import java.io.File;
 /**
  * @author alecw@broadinstitute.org
  */
-public class SortSam extends CommandLineProgram {
+public class PicardSortSamModified extends CommandLineProgram {
     @Usage
     public String USAGE = getStandardUsagePreamble() + "Sorts the input SAM or BAM.\n" + "" +
             "Input and output formats are determined by file extension.";
@@ -55,10 +55,10 @@ public class SortSam extends CommandLineProgram {
     @Option(shortName=StandardOptionDefinitions.SORT_ORDER_SHORT_NAME, doc="Sort order of output file")
     public SAMFileHeader.SortOrder SORT_ORDER;
 
-    private final Log log = Log.getInstance(SortSam.class);
+    private final Log log = Log.getInstance(PicardSortSamModified.class);
 
     public static void main(final String[] argv) {
-        new SortSam().instanceMainWithExit(argv);
+        new PicardSortSamModified().instanceMainWithExit(argv);
     }
 
     protected int doWork() {
