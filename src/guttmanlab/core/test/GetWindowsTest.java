@@ -75,7 +75,6 @@ public class GetWindowsTest {
 		while(windows.hasNext())
 		{
 			PopulatedWindow<SAMFragment> win = windows.next();
-			Iterator<SAMFragment> iter = win.getAnnotationsInWindow();
 			int reads = win.getNumberOfAnnotationsInWindow();
 
 			if(map1.containsKey(reads))
