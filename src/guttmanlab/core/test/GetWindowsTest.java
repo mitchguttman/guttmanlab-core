@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -74,6 +75,7 @@ public class GetWindowsTest {
 		while(windows.hasNext())
 		{
 			PopulatedWindow<SAMFragment> win = windows.next();
+			Iterator<SAMFragment> iter = win.getAnnotationsInWindow();
 			int reads = win.getNumberOfAnnotationsInWindow();
 
 			if(map1.containsKey(reads))

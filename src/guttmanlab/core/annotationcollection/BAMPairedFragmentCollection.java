@@ -23,7 +23,6 @@ import net.sf.samtools.SAMFileWriterFactory;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMRecordIterator;
 import net.sf.samtools.util.CloseableIterator;
-
 /**
  * This class represents a PairedFragmentCollection
  * @author mguttman
