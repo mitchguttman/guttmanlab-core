@@ -1,11 +1,10 @@
 package guttmanlab.core.annotation;
 
-import guttmanlab.core.annotation.Annotation.Strand;
 import guttmanlab.core.annotationcollection.AnnotationCollection;
 import guttmanlab.core.annotationcollection.FeatureCollection;
 import guttmanlab.core.datastructures.IntervalTree;
-import guttmanlab.core.datastructures.IntervalTree.Node;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -127,6 +126,18 @@ public class BlockedAnnotation extends AbstractAnnotation {
 		return this.name;
 	}
 
+	/**
+	 * Get blocks as a collection
+	 * @return The set of blocks
+	 */
+	public Collection<Annotation> getBlockSet() {
+		Iterator<SingleInterval> iter = getBlocks();
+		Collection<Annotation> rtrn = new ArrayList<Annotation>();
+		while(iter.hasNext()) {
+			rtrn.add(iter.next());
+		}
+		return rtrn;
+	}
 	
 	public Iterator<SingleInterval> getBlocks() {
 		return this.blocks.valueIterator();

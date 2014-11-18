@@ -1,8 +1,11 @@
 package guttmanlab.core.sequence;
 
 import guttmanlab.core.annotation.Annotation;
+import guttmanlab.core.annotation.Annotation.Strand;
+import guttmanlab.core.annotation.SingleInterval;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * A nucleotide sequence
@@ -76,7 +79,46 @@ public class Sequence {
 	public String getName(){
 		return this.name;
 	}
-
+	
+	/**
+	 * Get subsequence
+	 * @param name Name of new sequence to return
+	 * @param start Start position of subsequence
+	 * @param end Position after last position to include
+	 * @return The subsequence
+	 */
+	public Sequence getSubSequence(String name, int start, int end) {
+		String subSeq = sequence.substring(Math.max(start, 0), Math.min(end, sequence.length()));
+		Sequence seq = new Sequence(name, subSeq);
+		return seq;
+	}
+	
+	/**
+	 * Get the spliced transcribed sequence of an annotation
+	 * Bases are reported in 5' to 3' direction
+	 * @param annot The annotation
+	 * @return Sequence with same name as annotation containing the transcribed sequence
+	 */
+	public Sequence getSubsequence(Annotation annot) {
+		if(!annot.getOrientation().equals(Strand.POSITIVE) && !annot.getOrientation().equals(Strand.NEGATIVE)) {
+			throw new IllegalArgumentException("Strand must be known");
+		}
+		String seq = "";
+		Iterator<SingleInterval> blockIter = annot.getBlocks();
+		while(blockIter.hasNext()) {
+			SingleInterval block = blockIter.next();
+			Sequence blockSequence = getSubSequence("", block.getReferenceStartPosition(), block.getReferenceEndPosition());
+			String forwardBases = blockSequence.getSequenceBases();
+			if(annot.getOrientation().equals(Strand.POSITIVE)) {
+				seq += forwardBases;
+			} else {
+				String rc = new Sequence(forwardBases).reverseComplement().getSequenceBases();
+				seq = rc + seq;
+			}
+		}
+		return new Sequence(annot.getName(), seq);
+	}
+	
 	/**
 	 * Soft mask the specified regions
 	 * Throw an exception if the annotations do not refer to this sequence
