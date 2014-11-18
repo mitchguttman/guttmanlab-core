@@ -11,10 +11,12 @@ import guttmanlab.core.datastructures.Pair;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -33,6 +35,21 @@ public class BEDFileIO implements AnnotationFileIO<Gene> {
 	 */
 	public BEDFileIO(String referenceSizes){
 		this.referenceSpace=new CoordinateSpace(referenceSizes);
+	}
+	
+	/**
+	 * Write collection of annotations to a file
+	 * @param regions The annotations to write
+	 * @param outputBed Output bed file
+	 * @throws IOException
+	 */
+	public static void writeToFile(AnnotationCollection<? extends Annotation> regions, String outputBed) throws IOException {
+		FileWriter w = new FileWriter(outputBed);
+		Iterator<? extends Annotation> iter = regions.sortedIterator();
+		while(iter.hasNext()) {
+			w.write(iter.next().toBED() + "\n");
+		}
+		w.close();
 	}
 	
 	/**
