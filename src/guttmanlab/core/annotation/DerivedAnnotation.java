@@ -30,4 +30,10 @@ public class DerivedAnnotation<T extends Annotation> extends BlockedAnnotation{
 	{
 		return parentDerivedFrom.getOrientation();
 	}
+	
+	public DerivedAnnotation<T> merge(Annotation other)
+	{
+		Annotation merged = super.merge(other);
+		return new DerivedAnnotation<T>(merged,this.parentDerivedFrom);
+	}
 }
