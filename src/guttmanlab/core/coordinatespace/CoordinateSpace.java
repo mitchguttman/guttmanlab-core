@@ -70,6 +70,17 @@ public class CoordinateSpace {
 	}
 	
 	/**
+	 * @return Total length of all reference sequences
+	 */
+	public long getTotalReferenceLength() {
+		long rtrn = 0;
+		for(String chr : refSizes.keySet()) {
+			rtrn += refSizes.get(chr).intValue();
+		}
+		return rtrn;
+	}
+	
+	/**
 	 * Get the lengths of the reference sequences from a SAM file header
 	 * @param header SAM file header
 	 * @return Map associating each reference name with sequence length

@@ -135,7 +135,9 @@ public class SAMFragment extends AbstractAnnotation implements MappedFragment{
 	public Strand getOrientation() {
 		Strand rtrn=Annotation.Strand.POSITIVE;
 		if(this.record.getReadNegativeStrandFlag()){rtrn=Annotation.Strand.NEGATIVE;}
-		if((this.strandIsFirstOfPair && !this.record.getFirstOfPairFlag()) || (!this.strandIsFirstOfPair && this.record.getFirstOfPairFlag())){rtrn=rtrn.getReverseStrand();}
+		if(this.record.getReadPairedFlag()) {
+			if((this.strandIsFirstOfPair && !this.record.getFirstOfPairFlag()) || (!this.strandIsFirstOfPair && this.record.getFirstOfPairFlag())){rtrn=rtrn.getReverseStrand();}
+		}
 		return rtrn;
 	}
 	

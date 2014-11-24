@@ -39,14 +39,23 @@ public class Gene extends BlockedAnnotation{
 		return toBED(0,0,0);
 	}
 	
+	public String toBED(double score) {
+		return toBED(0,0,0,score);
+	}
+	
 	@Override
 	public String toBED(int r, int g, int b){
+		return toBED(r, g, b, 0.0);
+	}
+		
+	@Override
+	public String toBED(int r, int g, int b, double score){
 		if(r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
 			throw new IllegalArgumentException("RGB values must be between 0 and 255");
 		}
 		String rgb = r + "," + g + "," + b;
 		Iterator<SingleInterval> exons = getBlocks();
-		String rtrn=getReferenceName()+"\t"+getReferenceStartPosition()+"\t"+getReferenceEndPosition()+"\t"+getName() +"\t0.0\t"+getOrientation()+"\t"+this.cdsStartPos+"\t"+this.cdsEndPos+"\t"+rgb+"\t"+getNumberOfBlocks();
+		String rtrn=getReferenceName()+"\t"+getReferenceStartPosition()+"\t"+getReferenceEndPosition()+"\t"+getName() +"\t" + score + "\t"+getOrientation()+"\t"+this.cdsStartPos+"\t"+this.cdsEndPos+"\t"+rgb+"\t"+getNumberOfBlocks();
 		String sizes="";
 		String starts="";
 		while(exons.hasNext()){

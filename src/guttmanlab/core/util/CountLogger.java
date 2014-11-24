@@ -62,5 +62,11 @@ public class CountLogger {
 		}
 	}
 	
+	/**
+	 * @return The current count
+	 */
+	public int getCurrentCount() {
+		return numDone;
+	}
 	
 }

@@ -163,12 +163,29 @@ public interface Annotation {
 
 	/**
 	 * Return a BED string representation of the Annotation
+	 * @param score BED score
+	 * @return String representation
+	 */
+	public String toBED(double score);
+
+	/**
+	 * Return a BED string representation of the Annotation
 	 * @param r Red color
 	 * @param g Green color
 	 * @param b Blue color
 	 * @return String representation
 	 */
 	public String toBED(int r, int g, int b);
+	
+	/**
+	 * Return a BED string representation of the Annotation
+	 * @param r Red color
+	 * @param g Green color
+	 * @param b Blue color
+	 * @param score BED score
+	 * @return String representation
+	 */
+	public String toBED(int r, int g, int b, double score);
 	
 	/**
 	 * Return a UCSC format representation of the interval covered by the annotation

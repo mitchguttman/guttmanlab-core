@@ -135,13 +135,21 @@ public abstract class AbstractAnnotation implements Annotation {
 		return toBED(0,0,0);
 	}
 	
+	public String toBED(double score) {
+		return toBED(0,0,0,score);
+	}
+	
 	public String toBED(int r, int g, int b){
+		return toBED(r, g, b, 0.0);
+	}
+	
+	public String toBED(int r, int g, int b, double score){
 		if(r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
 			throw new IllegalArgumentException("RGB values must be between 0 and 255");
 		}
 		String rgb = r + "," + g + "," + b;
 		Iterator<SingleInterval> exons = getBlocks();
-		String rtrn=getReferenceName()+"\t"+getReferenceStartPosition()+"\t"+getReferenceEndPosition()+"\t"+(getName() == null ? toUCSC() : getName())+"\t0.0\t"+getOrientation()+"\t"+getReferenceEndPosition()+"\t"+getReferenceEndPosition()+"\t"+rgb+"\t"+getNumberOfBlocks();
+		String rtrn=getReferenceName()+"\t"+getReferenceStartPosition()+"\t"+getReferenceEndPosition()+"\t"+(getName() == null ? toUCSC() : getName())+"\t" + score + "\t"+getOrientation()+"\t"+getReferenceEndPosition()+"\t"+getReferenceEndPosition()+"\t"+rgb+"\t"+getNumberOfBlocks();
 		String sizes="";
 		String starts="";
 		while(exons.hasNext()){
