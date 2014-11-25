@@ -112,7 +112,7 @@ public class SAMFragment extends AbstractAnnotation implements MappedFragment{
 			if(op.equals(CigarOperator.MATCH_OR_MISMATCH)){
 				int blockStart=currentOffset;
 				int blockEnd=blockStart+length;
-				rtrn.addBlock(new SingleInterval(chr, blockStart, blockEnd, strand, name));
+				rtrn.addBlocks(new SingleInterval(chr, blockStart, blockEnd, strand, name));
 				currentOffset=blockEnd;
 			}
 			else if(op.equals(CigarOperator.N)){

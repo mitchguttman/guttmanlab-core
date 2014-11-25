@@ -54,9 +54,9 @@ public class BAMSingleReadTest {
 		SingleInterval block2 = new SingleInterval("chr19", 30091691, 30091891);
 		SingleInterval block = new SingleInterval("chr19", 30090800, 30091891);
 		
-		multi.addBlock(block1);
-		multi.addBlock(block2);
-		single.addBlock(block);
+		multi.addBlocks(block1);
+		multi.addBlocks(block2);
+		single.addBlocks(block);
 		
 		multi.setOrientation(Strand.BOTH);
 		single.setOrientation(Strand.BOTH);

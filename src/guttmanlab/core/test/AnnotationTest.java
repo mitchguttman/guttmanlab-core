@@ -52,9 +52,9 @@ public class AnnotationTest {
 		SingleInterval block2 = new SingleInterval("a1",350,500);
 		SingleInterval block3 = new SingleInterval("a1",600,700);
 		
-		blocked.addBlock(block1);
-		blocked.addBlock(block2);
-		blocked.addBlock(block3);
+		blocked.addBlocks(block1);
+		blocked.addBlocks(block2);
+		blocked.addBlocks(block3);
 		
 		blocked.setOrientation(Strand.POSITIVE);
 		Annotation blocked1 = blocked.trim(0,800);    //no trimming
@@ -103,15 +103,15 @@ public class AnnotationTest {
 		SingleInterval block2 = new SingleInterval("a1",350,500);
 		SingleInterval block3 = new SingleInterval("a1",600,700);
 	
-		blocked.addBlock(block1);
-		blocked.addBlock(block2);
-		blocked.addBlock(block3);
+		blocked.addBlocks(block1);
+		blocked.addBlocks(block2);
+		blocked.addBlocks(block3);
 		
-		blocked2.addBlock(block1);
-		blocked2.addBlock(block2);
-		blocked2.addBlock(block3);
+		blocked2.addBlocks(block1);
+		blocked2.addBlocks(block2);
+		blocked2.addBlocks(block3);
 		
-		blocked3.addBlock(block3);
+		blocked3.addBlocks(block3);
 		
 		System.out.println(blocked.hashCode());
 		System.out.println(blocked2.hashCode());

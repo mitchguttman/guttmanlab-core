@@ -48,26 +48,26 @@ public class BlockedAnnotation extends AbstractAnnotation {
 	public BlockedAnnotation(Collection<Annotation> blocks, String name){
 		this(name);
 		for(Annotation block: blocks){
-			addBlock(block);
+			addBlocks(block);
 		}
 	}
 	
-	public BlockedAnnotation(Annotation block){
+	public BlockedAnnotation(Annotation annot){
 		this();
-		this.name=block.getName();
-		addBlock(block);
+		this.name=annot.getName();
+		addBlocks(annot);
 	}
 	
 	/**
 	 * Add block to current blocks
 	 * If overlaps existing block, merge
 	 * Requires blocks have the same reference name and Strand
-	 * @param block block to add
+	 * @param annot Annotation with blocks to add
 	 * @return if the block was successfully added
 	 */
-	public boolean addBlock(Annotation block) {
+	public boolean addBlocks(Annotation annot) {
 		boolean added=false;
-		Iterator<SingleInterval> exons=block.getBlocks();
+		Iterator<SingleInterval> exons=annot.getBlocks();
 		while(exons.hasNext()){
 			added=update(exons.next());
 		}

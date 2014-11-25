@@ -21,8 +21,8 @@ public class Gene extends BlockedAnnotation{
 		this.cdsStartPos=cdsStartPos;
 	}
 	
-	public Gene(Annotation block) {
-		super(block);
+	public Gene(Annotation annot) {
+		super(annot);
 	}
 
 	/**

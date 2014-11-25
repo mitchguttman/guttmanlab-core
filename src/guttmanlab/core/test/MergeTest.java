@@ -19,11 +19,11 @@ public class MergeTest {
 	public void MergeTwoSingleBlockAnnotations() {
 		BlockedAnnotation a1 = new BlockedAnnotation();
 		SingleInterval block1 = new SingleInterval("a1",100,300);
-		a1.addBlock(block1);
+		a1.addBlocks(block1);
 		
 		BlockedAnnotation a2 = new BlockedAnnotation();
 		SingleInterval block2 = new SingleInterval("a1",200,500);		
-		a2.addBlock(block2);
+		a2.addBlocks(block2);
 		
 		Annotation a3 = a1.merge(a2);
 		assertEquals("merged should have 1 block.",1,a3.getNumberOfBlocks());
@@ -36,14 +36,14 @@ public class MergeTest {
 		BlockedAnnotation a1 = new BlockedAnnotation();
 		SingleInterval block1 = new SingleInterval("a1",100,300);
 		SingleInterval block2 = new SingleInterval("a1",350,500);
-		a1.addBlock(block1);
-		a1.addBlock(block2);
+		a1.addBlocks(block1);
+		a1.addBlocks(block2);
 		
 		BlockedAnnotation a2 = new BlockedAnnotation();
 		SingleInterval block3 = new SingleInterval("a1",50,200);
 		SingleInterval block4 = new SingleInterval("a1",325,400);
-		a2.addBlock(block3);
-		a2.addBlock(block4);
+		a2.addBlocks(block3);
+		a2.addBlocks(block4);
 		
 		Annotation a3 = a1.merge(a2);
 		assertEquals("merged should have 2 blocks.",2,a3.getNumberOfBlocks());
@@ -62,14 +62,14 @@ public class MergeTest {
 		BlockedAnnotation a1 = new BlockedAnnotation();
 		SingleInterval block1 = new SingleInterval("a1",100,300);
 		SingleInterval block2 = new SingleInterval("a1",350,500);
-		a1.addBlock(block1);
-		a1.addBlock(block2);
+		a1.addBlocks(block1);
+		a1.addBlocks(block2);
 		
 		BlockedAnnotation a2 = new BlockedAnnotation();
 		SingleInterval block3 = new SingleInterval("a1",50,200);
 		SingleInterval block4 = new SingleInterval("a1",275,400);
-		a1.addBlock(block3);
-		a2.addBlock(block4);
+		a1.addBlocks(block3);
+		a2.addBlocks(block4);
 		
 		Annotation a3 = a1.merge(a2);
 		assertEquals("merged should have 1 blocks.",1,a3.getNumberOfBlocks());
@@ -81,12 +81,12 @@ public class MergeTest {
 	public void AnnotationsMustHaveCompatibleOrientations() {
 		BlockedAnnotation a1 = new BlockedAnnotation();
 		SingleInterval block1 = new SingleInterval("a1",100,300);
-		a1.addBlock(block1);
+		a1.addBlocks(block1);
 		a1.setOrientation(Strand.POSITIVE);
 		
 		BlockedAnnotation a2 = new BlockedAnnotation();
 		SingleInterval block2 = new SingleInterval("a1",200,500);		
-		a2.addBlock(block2);
+		a2.addBlocks(block2);
 		a2.setOrientation(Strand.NEGATIVE);
 
 		Annotation a3 = a1.merge(a2);
@@ -107,11 +107,11 @@ public class MergeTest {
 		
 		BlockedAnnotation a1 = new BlockedAnnotation();
 		SingleInterval block1 = new SingleInterval("a1",100,300);
-		a1.addBlock(block1);
+		a1.addBlocks(block1);
 		
 		BlockedAnnotation a2 = new BlockedAnnotation();
 		SingleInterval block2 = new SingleInterval("a1",200,500);		
-		a2.addBlock(block2);
+		a2.addBlocks(block2);
 		
 		fc.add(a1);
 		fc.add(a2);
@@ -130,15 +130,15 @@ public class MergeTest {
 		
 		BlockedAnnotation a1 = new BlockedAnnotation();
 		SingleInterval block1 = new SingleInterval("a1",100,300);
-		a1.addBlock(block1);
+		a1.addBlocks(block1);
 		
 		BlockedAnnotation a2 = new BlockedAnnotation();
 		SingleInterval block2 = new SingleInterval("a1",200,500);		
-		a2.addBlock(block2);
+		a2.addBlocks(block2);
 		
 		BlockedAnnotation a3 = new BlockedAnnotation();
 		SingleInterval block3 = new SingleInterval("a1",350,600);		
-		a3.addBlock(block3);
+		a3.addBlocks(block3);
 		
 		fc.add(a1);
 		fc.add(a2);
@@ -158,19 +158,19 @@ public class MergeTest {
 		
 		BlockedAnnotation a1 = new BlockedAnnotation();
 		SingleInterval block1 = new SingleInterval("a1",100,300);
-		a1.addBlock(block1);
+		a1.addBlocks(block1);
 		
 		BlockedAnnotation a2 = new BlockedAnnotation();
 		SingleInterval block2 = new SingleInterval("a1",200,500);		
-		a2.addBlock(block2);
+		a2.addBlocks(block2);
 		
 		BlockedAnnotation a3 = new BlockedAnnotation();
 		SingleInterval block3 = new SingleInterval("a1",600,700);		
-		a3.addBlock(block3);
+		a3.addBlocks(block3);
 		
 		BlockedAnnotation a4 = new BlockedAnnotation();
 		SingleInterval block4 = new SingleInterval("a1",650,750);		
-		a4.addBlock(block4);
+		a4.addBlocks(block4);
 		
 		fc.add(a1);
 		fc.add(a2);

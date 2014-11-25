@@ -29,7 +29,7 @@ public abstract class AbstractAnnotation implements Annotation {
 			while(blocks2.hasNext()){
 				SingleInterval block2=blocks2.next();
 				SingleInterval inter=intersect(block1, block2);
-				if(inter!=null){rtrn.addBlock(inter);}
+				if(inter!=null){rtrn.addBlocks(inter);}
 			}
 			
 		}
@@ -61,7 +61,7 @@ public abstract class AbstractAnnotation implements Annotation {
 				SingleInterval block2=blocks2.next();
 				if(block1.overlaps(block2)){
 					SingleInterval merge=merge(block1, block2);
-					if(merge!=null){rtrn.addBlock(merge);}
+					if(merge!=null){rtrn.addBlocks(merge);}
 				}
 			}
 			
@@ -226,7 +226,7 @@ public abstract class AbstractAnnotation implements Annotation {
 				}
 				block=block.trim(shiftStart, featureSpaceBlock.size()-shiftEnd);
 				
-				rtrn.addBlock(block);
+				rtrn.addBlocks(block);
 			}
 			sumBlocks=sumBlocks+origBlockSize;
 		}
