@@ -55,6 +55,31 @@ public class StringParser {
 		return s.split(whitespaceDelimiter);
 	}
 
+	/**
+	 * Get a new tab-delimited string with the first fields removed from this string
+	 * @param numToRemove Number of fields to remove from beginning of string
+	 * @return String with initial fields removed
+	 */
+	public String removeFirstTokens(int numToRemove) {
+		return removeFirstTokens(numToRemove, "\t");
+	}
+	
+	/**
+	 * Get a new string with the first fields removed from this string
+	 * @param numToRemove Number of fields to remove from beginning of string
+	 * @param delim Delimiter to use in returned string
+	 * @return String with initial fields removed
+	 */
+	public String removeFirstTokens(int numToRemove, String delim) {
+		if(numToRemove > tokens.length - 1) {
+			throw new IllegalArgumentException("Can't remove " + numToRemove + " fields from string with " + tokens.length + ".");
+		}
+		String rtrn = tokens[numToRemove];
+		for(int i = numToRemove + 1; i < tokens.length; i++) {
+			rtrn += delim + tokens[i];
+		}
+		return rtrn;
+	}
 	
 	/**
 	 * Parses the string around the specified delimiter and stores tokens
@@ -124,6 +149,20 @@ public class StringParser {
 	}
 	
 	/**
+	 * Gets the token at specified position and parses to a boolean
+	 * @param index The position
+	 * @return the desired token as a boolean
+	 */
+	public boolean asBoolean(int index) {
+		String token = tokens[index];
+		if(token.equalsIgnoreCase("true")) return true;
+		if(token.equalsIgnoreCase("t")) return true;
+		if(token.equalsIgnoreCase("false")) return false;
+		if(token.equalsIgnoreCase("f")) return false;
+		throw new IllegalArgumentException("Invalid boolean: " + token);
+	}
+	
+	/**
 	 * Gets the token at specified position and parses to a double
 	 * @param index The position
 	 * @return the desired token as a double
@@ -132,6 +171,10 @@ public class StringParser {
 		try {
 			return Double.parseDouble(tokens[index]);
 		} catch (NumberFormatException e) {
+			if(tokens[index].equals("inf")) return Double.POSITIVE_INFINITY;
+			if(tokens[index].equals("-inf")) return Double.NEGATIVE_INFINITY;
+			if(tokens[index].equals("nan")) return Double.NaN;
+			if(tokens[index].equals("-nan")) return Double.NaN;
 			throw new NumberFormatException("Field " + index + " cannot be parsed to double: " + tokens[index]);
 		}
 	}
