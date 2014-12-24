@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.collections15.Predicate;
+import org.apache.log4j.Logger;
 
 import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMFileReader;
@@ -40,6 +41,7 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 	private BAMSingleReadCollection reads;
 	private SpecialBAMPECollection fragmentReader;
 	private String bam;
+	private static Logger logger = Logger.getLogger(BAMPairedFragmentCollection.class.getName());
 	
 	public BAMPairedFragmentCollection(File bamFile){
 		//Step 1: Initialize a Picard BAM Reader, represents reads
@@ -77,6 +79,7 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 	private SpecialBAMPECollection getPairedEndFragmentFile() {
 		if(this.fragmentReader!=null){return fragmentReader;}
 		else if(this.fragmentFile.exists()){
+			logger.info("Fragment file exists " + fragmentFile.getName());
 			fragmentReader=new SpecialBAMPECollection(fragmentFile);
 			return fragmentReader;
 		}
@@ -86,6 +89,7 @@ public class BAMPairedFragmentCollection extends AbstractAnnotationCollection<Pa
 			//Create an indexed BAM file
 			SAMFileWriter writer=new SAMFileWriterFactory().setCreateIndex(true).makeSAMOrBAMWriter(reads.getFileHeader(), false, fragmentFile);
 			//For each pair, write it with appropriate flags
+			logger.info("Writing fragment file " + fragmentFile.getName());
 			while(iter.hasNext()){
 				PairedMappedFragment<SAMFragment> pair=iter.next();
 				convertToCustomSAMFormat(pair, writer);
