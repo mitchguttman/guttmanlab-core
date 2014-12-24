@@ -4,11 +4,9 @@ import guttmanlab.core.annotationcollection.AnnotationCollection;
 import guttmanlab.core.annotationcollection.FeatureCollection;
 import guttmanlab.core.datastructures.IntervalTree;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
 
 
 public class BlockedAnnotation extends AbstractAnnotation {
@@ -21,8 +19,6 @@ public class BlockedAnnotation extends AbstractAnnotation {
 	private boolean started;
 	private String name;
 	private Strand orientation;
-	private int numBlocks;
-	private static Logger logger = Logger.getLogger(BlockedAnnotation.class.getName());
 	
 	/**
 	 * An empty constructor
@@ -94,9 +90,6 @@ public class BlockedAnnotation extends AbstractAnnotation {
 			this.endPosition=Math.max(endPosition, interval.getReferenceEndPosition());
 		}
 		
-		
-		//TODO Ensure that blocks that overlap an existing one are collapsed before adding
-		//check if tree has an overlapper
 		boolean hasOverlappers=blocks.hasOverlappers(interval.getReferenceStartPosition(), interval.getReferenceEndPosition());
 		SingleInterval merged=interval;
 		if(hasOverlappers){
@@ -104,19 +97,20 @@ public class BlockedAnnotation extends AbstractAnnotation {
 			Iterator<SingleInterval> iter=blocks.overlappingValueIterator(interval.getReferenceStartPosition(), interval.getReferenceEndPosition());
 			while(iter.hasNext()){
 				SingleInterval e=iter.next();
+				blocks.remove(e.getReferenceStartPosition(), e.getReferenceEndPosition()); // Pam added on 12/24/14
 				merged=merge(merged, e);
 				size-=e.size();
-				numBlocks--;
 			}
 		}
 		int end = merged.getReferenceEndPosition();
 		int start = merged.getReferenceStartPosition();
-		if(start>end)
+		if(start>end) {
 			blocks.put(end,start, merged);
-		else
+		}
+		else {
 			blocks.put(start, end, merged);
+		}
 		size+=merged.size();
-		numBlocks++;
 		
 		return true;
 	}
@@ -126,19 +120,6 @@ public class BlockedAnnotation extends AbstractAnnotation {
 		return this.name;
 	}
 
-	/**
-	 * Get blocks as a collection
-	 * @return The set of blocks
-	 */
-	public Collection<Annotation> getBlockSet() {
-		Iterator<SingleInterval> iter = getBlocks();
-		Collection<Annotation> rtrn = new ArrayList<Annotation>();
-		while(iter.hasNext()) {
-			rtrn.add(iter.next());
-		}
-		return rtrn;
-	}
-	
 	public Iterator<SingleInterval> getBlocks() {
 		return this.blocks.valueIterator();
 	}
@@ -171,7 +152,7 @@ public class BlockedAnnotation extends AbstractAnnotation {
 
 	@Override
 	public int getNumberOfBlocks() {
-		return this.numBlocks;
+		return blocks.size();
 	}
 	
 	//TODO This could actually go in the AbstractAnnotation
@@ -191,7 +172,7 @@ public class BlockedAnnotation extends AbstractAnnotation {
 		
 		//If strand is neg, then position is from end
 		if(getOrientation().equals(Annotation.Strand.NEGATIVE)){
-			relativeSize=this.size-relativeSize;
+			relativeSize=this.size-relativeSize - 1;
 		}
 		return relativeSize;
 	}
