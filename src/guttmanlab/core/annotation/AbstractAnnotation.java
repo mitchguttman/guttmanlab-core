@@ -1,11 +1,10 @@
 package guttmanlab.core.annotation;
 
-import guttmanlab.core.annotation.Annotation.Strand;
-
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.log4j.Logger;
 
 import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMRecord;
@@ -16,8 +15,6 @@ import net.sf.samtools.SAMRecord;
  *
  */
 public abstract class AbstractAnnotation implements Annotation {
-
-	private static Logger logger = Logger.getLogger(AbstractAnnotation.class.getName());
 	
 	@Override
 	public Annotation intersect(Annotation other) {
@@ -36,6 +33,20 @@ public abstract class AbstractAnnotation implements Annotation {
 		return rtrn;
 	}
 	
+	/**
+	 * Get blocks as a collection
+	 * @return The set of blocks
+	 */
+	public Collection<Annotation> getBlockSet() {
+		Iterator<SingleInterval> iter = getBlocks();
+		Collection<Annotation> rtrn = new ArrayList<Annotation>();
+		while(iter.hasNext()) {
+			rtrn.add(iter.next());
+		}
+		return rtrn;
+	}
+	
+
 	/**
 	 * Helper method to compute the overlap between single blocks
 	 * @param block1 Block1
