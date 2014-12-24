@@ -137,6 +137,9 @@ public class OGSJob implements Job {
 		session = drmaaSession;
 		
 		// Set up the job template
+		if(session == null) {
+			throw new IllegalStateException("No active DRMAA session");
+		}
 		jobTemplate = session.createJobTemplate();
 		String workingDirectory = System.getProperty("user.dir");
 		jobTemplate.setWorkingDirectory(workingDirectory);
