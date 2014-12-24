@@ -1,6 +1,5 @@
 package guttmanlab.core.annotation;
 
-import guttmanlab.core.annotation.Annotation.Strand;
 import guttmanlab.core.annotation.predicate.ReadFlag;
 import guttmanlab.core.annotationcollection.AnnotationCollection;
 import guttmanlab.core.datastructures.Pair;
@@ -65,15 +64,15 @@ public class PairedMappedFragment<T extends Annotation> extends AbstractAnnotati
 
 	@Override
 	public Iterator<SingleInterval> getBlocks() {
-		Collection<SingleInterval> rtrn=new ArrayList<SingleInterval>();
+		Collection<Annotation> unmergedBlocks=new ArrayList<Annotation>();
 		
 		Iterator<SingleInterval> iter1=pair.getValue1().getBlocks();
 		Iterator<SingleInterval> iter2=pair.getValue2().getBlocks();
 		
-		while(iter1.hasNext()){rtrn.add(iter1.next());}
-		while(iter2.hasNext()){rtrn.add(iter2.next());}
+		while(iter1.hasNext()){unmergedBlocks.add(iter1.next());}
+		while(iter2.hasNext()){unmergedBlocks.add(iter2.next());}
 		
-		return rtrn.iterator();
+		return new BlockedAnnotation(unmergedBlocks, getName()).getBlocks();
 	}
 
 	@Override
