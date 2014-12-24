@@ -34,6 +34,58 @@ public class Gene extends BlockedAnnotation{
 		return intersect(cds);
 	}
 	
+	/**
+	 * @return The 5'-UTR
+	 */
+	public Annotation get5UTR() {
+		if(cdsStartPos==NO_CDS || cdsEndPos==NO_CDS || cdsStartPos == cdsEndPos) {
+			return this;
+		}
+		Strand orientation = getOrientation();
+		if(orientation.equals(Strand.POSITIVE)) {
+			if(cdsStartPos == getReferenceStartPosition()) {
+				return null;
+			}
+			SingleInterval utr = new SingleInterval(getReferenceName(), getReferenceStartPosition(), cdsStartPos);
+			Annotation rtrn = intersect(utr);
+			return new Gene(rtrn.getBlockSet(), -1, -1, this.getName() + "_5UTR");
+		}
+		if(orientation.equals(Strand.NEGATIVE)) {
+			if(cdsEndPos == getReferenceEndPosition()) {
+				return null;
+			}
+			SingleInterval utr = new SingleInterval(getReferenceName(), cdsEndPos, getReferenceEndPosition());
+			Annotation rtrn =  intersect(utr);
+			return new Gene(rtrn.getBlockSet(), -1, -1, this.getName() + "_5UTR");
+		}
+		throw new IllegalArgumentException("Can't get 5'-UTR because gene strand is unknown.");
+	}
+	
+	/**
+	 * @return The 3'-UTR
+	 */
+	public Annotation get3UTR() {
+		if(cdsStartPos==NO_CDS || cdsEndPos==NO_CDS || cdsStartPos == cdsEndPos) {
+			return this;
+		}
+		Strand orientation = getOrientation();
+		if(orientation.equals(Strand.POSITIVE)) {
+			if(cdsEndPos == getReferenceEndPosition()) {
+				return null;
+			}
+			SingleInterval utr = new SingleInterval(getReferenceName(), cdsEndPos, getReferenceEndPosition());
+			return intersect(utr);
+		}
+		if(orientation.equals(Strand.NEGATIVE)) {
+			if(cdsStartPos == getReferenceStartPosition()) {
+				return null;
+			}
+			SingleInterval utr = new SingleInterval(getReferenceName(), getReferenceStartPosition(), cdsStartPos);
+			return intersect(utr);
+		}
+		throw new IllegalArgumentException("Can't get 3'-UTR because gene strand is unknown.");
+	}
+	
 	@Override
 	public String toString(){
 		return toBED(0,0,0);
