@@ -2,6 +2,7 @@ package guttmanlab.core.annotation;
 
 import guttmanlab.core.annotationcollection.AnnotationCollection;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import net.sf.samtools.SAMFileHeader;
@@ -136,6 +137,14 @@ public interface Annotation {
 	 * @return The blocks of the alignment
 	 */
 	public Iterator<SingleInterval> getBlocks();
+	
+	
+	
+	/**
+	 * Get blocks as a collection
+	 * @return The set of blocks
+	 */
+	public Collection<Annotation> getBlockSet();
 	
 	/**
 	 * Get number of blocks in the annotation
