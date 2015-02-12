@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 public class AvroStringIndex extends AbstractAvroIndex<String> {
 
 	private static Logger logger = Logger.getLogger(AvroStringIndex.class.getName());
+	public static long MAX_RECORDS_TO_GET = Long.MAX_VALUE; //If there are more than this many records with the key, throw an IllegalArgumentException
 	
 	/**
 	 * Read index information from index file
@@ -65,7 +66,7 @@ public class AvroStringIndex extends AbstractAvroIndex<String> {
 			try {
 				record = new GenericData.Record((Record) reader.next(), true);
 			} catch(AvroRuntimeException e) {
-				logger.warn("Skipping record at position " + current);
+				logger.warn("Caught exception " + e.getMessage() + ". Skipping record at position " + current);
 				continue;
 			}
 			//System.out.println(current + "\t" + reader.tell());
@@ -164,7 +165,10 @@ public class AvroStringIndex extends AbstractAvroIndex<String> {
 			logger.warn("Returned matches will be incomplete for this key.");
 			logger.warn(e.getMessage());
 		}
-		return rtrn;
+		if(rtrn.size() <= MAX_RECORDS_TO_GET) {
+			return rtrn;
+		}
+		throw new IllegalArgumentException("Key " + key + " has " + rtrn.size() + " records, more than the max of " + MAX_RECORDS_TO_GET + ".");
 	}
 	
 	

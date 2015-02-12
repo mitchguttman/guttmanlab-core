@@ -1,5 +1,8 @@
 package guttmanlab.core.serialize.sam;
 
+import guttmanlab.core.annotation.Gene;
+import guttmanlab.core.annotation.io.BEDFileIO;
+import guttmanlab.core.annotationcollection.AnnotationCollection;
 import guttmanlab.core.annotationcollection.FeatureCollection;
 import guttmanlab.core.serialize.AvroIndex;
 import guttmanlab.core.serialize.AvroStringIndex;
@@ -14,9 +17,28 @@ import org.apache.avro.generic.GenericRecord;
 public class AvroSamStringIndex implements AvroIndex<String> {
 
 	private AvroStringIndex stringIndex;
+	private AnnotationCollection<Gene> excludeRegions;
 	
+	/**
+	 * @param avroFileName Avro database file
+	 * @param schemaFile Avro schema file
+	 * @param indexedFieldName Name of indexed field
+	 * @throws IOException
+	 */
 	public AvroSamStringIndex(String avroFileName, String schemaFile, String indexedFieldName) throws IOException {
+		this(avroFileName, schemaFile, indexedFieldName, null);
+	}
+	
+	/**
+	 * @param avroFileName Avro database file
+	 * @param schemaFile Avro schema file
+	 * @param indexedFieldName Name of indexed field
+	 * @param regionsToExclude Exclude matches that overlap any of these annotations, or null if not using
+	 * @throws IOException
+	 */
+	public AvroSamStringIndex(String avroFileName, String schemaFile, String indexedFieldName, AnnotationCollection<Gene> regionsToExclude) throws IOException {
 		stringIndex = new AvroStringIndex(avroFileName, schemaFile, indexedFieldName);
+		excludeRegions = regionsToExclude;
 	}
 
 	@Override
@@ -37,7 +59,11 @@ public class AvroSamStringIndex implements AvroIndex<String> {
 		List<GenericRecord> genericRecords = stringIndex.get(key);
 		List<AvroSamRecord> rtrn = new ArrayList<AvroSamRecord>();
 		for(GenericRecord record : genericRecords) {
-			rtrn.add(new AvroSamRecord(record));
+			AvroSamRecord samRecord = new AvroSamRecord(record);
+			if(excludeRegions != null && excludeRegions.overlaps(samRecord)) {
+				continue;
+			}
+			rtrn.add(samRecord);
 		}
 		return rtrn;
 	}
@@ -60,7 +86,11 @@ public class AvroSamStringIndex implements AvroIndex<String> {
 		List<GenericRecord> genericRecords = stringIndex.get(key, nameOfAttributeForExclusionSet, attributeValuesToExclude);
 		List<AvroSamRecord> rtrn = new ArrayList<AvroSamRecord>();
 		for(GenericRecord record : genericRecords) {
-			rtrn.add(new AvroSamRecord(record));
+			AvroSamRecord samRecord = new AvroSamRecord(record);
+			if(excludeRegions != null && excludeRegions.overlaps(samRecord)) {
+				continue;
+			}
+			rtrn.add(samRecord);
 		}
 		return rtrn;
 	}
