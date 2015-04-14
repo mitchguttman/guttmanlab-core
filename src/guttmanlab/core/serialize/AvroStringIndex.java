@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.generic.GenericData;
@@ -41,13 +42,14 @@ public class AvroStringIndex extends AbstractAvroIndex<String> {
 	@Override
 	public void loadAndValidateIndex() throws IOException {
 		logger.info("");
-		logger.info("Reading index from file " + indexFile + ".");
+		logger.info("Reading index from file " + indexFile + "...");
 		positionsByKey = new TreeMap<String, Long>();
 		FileReader r = new FileReader(indexFile);
 		BufferedReader b = new BufferedReader(r);
 		StringParser s = new StringParser();
 		long previous = 0;
 		long current = 0;
+		Collection<Long> messagesWritten = new TreeSet<Long>();
 		while(b.ready()) {
 			s.parse(b.readLine());
 			String key = s.asString(0);
@@ -59,14 +61,16 @@ public class AvroStringIndex extends AbstractAvroIndex<String> {
 			}
 			// Check that the first record in this block has the reported key
 			GenericData.Record record = null;
-			reader.seek(current);
-			//System.out.println("\n" + current + "\t" + reader.tell());
-			//reader.previousSync();
-			//System.out.println(current + "\t" + reader.tell());
+			//logger.info("");
+			//logger.info(reader.tell());
+			//logger.info("Syncing to " + current);
+			reader.sync(previous);
+			//logger.info(reader.tell());
 			try {
 				record = new GenericData.Record((Record) reader.next(), true);
 			} catch(AvroRuntimeException e) {
-				logger.warn("Caught exception " + e.getMessage() + ". Skipping record at position " + current);
+				e.printStackTrace();
+				logger.warn("Caught exception. Skipping record at position " + current);
 				continue;
 			}
 			//System.out.println(current + "\t" + reader.tell());
@@ -79,6 +83,11 @@ public class AvroStringIndex extends AbstractAvroIndex<String> {
 				positionsByKey.put(key, Long.valueOf(current));
 			}
 			previous = current;
+			long nearestMillion = current - (current % 1000000);
+			if(nearestMillion % 10000000 == 0 && !messagesWritten.contains(Long.valueOf(nearestMillion))) {
+				logger.info("Index position " + nearestMillion);
+				messagesWritten.add(Long.valueOf(nearestMillion));
+			}
 		}
 		b.close();
 	}
