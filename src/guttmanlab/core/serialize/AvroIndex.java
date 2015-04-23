@@ -16,11 +16,10 @@ public interface AvroIndex<T extends Comparable<T>> {
 	
 	/**
 	 * Load the index into memory
-	 * While loading, check that the index is valid
-	 * i.e., records are sorted by the proper key and file positions match the avro file
+	 * @param validate While loading, check that the index is valid, i.e., records are sorted by the proper key and file positions match the avro file
 	 * @throws IOException
 	 */
-	public void loadAndValidateIndex() throws IOException;
+	public void loadIndex(boolean validate) throws IOException;
 		
 	/**
 	 * @return The current position of the reader

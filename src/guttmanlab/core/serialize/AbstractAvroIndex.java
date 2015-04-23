@@ -22,47 +22,91 @@ import org.apache.log4j.Logger;
  */
 public abstract class AbstractAvroIndex<T extends Comparable<T>> implements AvroIndex<T> {
 	
-	private String avroFile; // The avro data file based on the schema
-	protected String indexFile; // The index written by this class
+	private String avroFileName; // The avro data file based on the schema
+	protected String indexFileName; // The index written by this class
 	protected TreeMap<T, Long> positionsByKey; // File position of record at beginning of each block
 	protected DataFileReader<GenericRecord> reader; // Reader for avro file
 	private Schema schema; // Data schema
 	protected String indexedField; // The name of the field in the schema that is indexed by this index
-	//protected GenericRecord genericRecord; // A generic record to read data into
 	private static Logger logger = Logger.getLogger(AbstractAvroIndex.class.getName());
+	private static String VALIDATED_INDEX_SUFFIX = ".VALIDATED";
 	
 	/**
 	 * Get index file name corresponding to an avro file name
-	 * @param avroFileName Avro file name
+	 * @param avroFile Avro file name
 	 * @return Index file name
 	 */
-	public static String getIndexFileName(String avroFileName) {
-		return avroFileName + ".index";
+	public static String getIndexFileName(String avroFile) {
+		return avroFile + ".index";
 	}
 	
 	/**
 	 * Read index information from index file
-	 * @param avroFileName Avro file
+	 * @param avroFile Avro file
 	 * @param schemaFile Avro schema file
 	 * @param indexedFieldName The name of the field in the schema that is indexed in this index
 	 */
-	public AbstractAvroIndex(String avroFileName, String schemaFile, String indexedFieldName) throws IOException {
+	public AbstractAvroIndex(String avroFile, String schemaFile, String indexedFieldName) throws IOException {
 		logger.info("Loading avro index...");
-		avroFile = avroFileName;
-		indexFile = getIndexFileName(avroFile);		
-		File f = new File(indexFile);
+		avroFileName = avroFile;
+		indexFileName = getIndexFileName(avroFileName);		
+		File f = new File(indexFileName);
 		if(!f.exists()) {
-			throw new IllegalStateException("No index exists for avro file " + avroFile + ".");
+			throw new IllegalStateException("No index exists for avro file " + avroFileName + ".");
 		}
 		schema = new Schema.Parser().parse(new File(schemaFile));
 		indexedField = indexedFieldName;
 		//genericRecord = new GenericData.Record(schema);
 		DatumReader<GenericRecord> datumReader = new GenericDatumReader<GenericRecord>(schema);
-		reader = new DataFileReader<GenericRecord>(new File(avroFile), datumReader);
-		loadAndValidateIndex();
+		reader = new DataFileReader<GenericRecord>(new File(avroFileName), datumReader);
+		loadIndex(!indexIsValidated());
 		logger.info("Done loading and validating index.");
 	}
+	
+	/**
+	 * Check if there is a validation file with the index file that is newer than the index
+	 * @return True iff the index has been validated
+	 * @throws IOException 
+	 */
+	private boolean indexIsValidated() throws IOException {
+		File avroFile = new File(avroFileName).getCanonicalFile();
+		File indexFile = new File(indexFileName).getCanonicalFile();
+		// Check that index is newer than database
+		if(indexFile.lastModified() < avroFile.lastModified()) {
+			throw new IllegalStateException("Database " + avroFile.getAbsolutePath() + " was modified after index " + indexFile.getAbsolutePath());
+		}
+		// Check that validation file exists
+		File validatedFile = new File(getValidationFileName());
+		if(!validatedFile.exists()) return false;
+		// Check that validation file is newer than index
+		if(indexFile.lastModified() > validatedFile.lastModified()) {
+			validatedFile.delete();
+			return false;
+		}
+		logger.info("Index " + indexFileName + " is validated.");
+		return true;
+	}
 
+	/**
+	 * Write the validation file for the index
+	 * @throws IOException
+	 */
+	public void reportIndexValidated() throws IOException {
+		File validatedFile = new File(getValidationFileName());
+		@SuppressWarnings("unused")
+		boolean created = validatedFile.createNewFile();
+		validatedFile.setLastModified(System.currentTimeMillis());
+	}
+	
+	/**
+	 * Get validation file name
+	 * @return Validation file name
+	 * @throws IOException
+	 */
+	private String getValidationFileName() throws IOException {
+		return new File(indexFileName).getCanonicalPath() + VALIDATED_INDEX_SUFFIX;
+	}
+	
 	/**
 	 * Get a lower bound on the file position of the first occurrence of a key
 	 * @param key
@@ -136,6 +180,7 @@ public abstract class AbstractAvroIndex<T extends Comparable<T>> implements Avro
 			Object val = avroRec.get(fieldName);
 			if(val == null) {
 				w.close();
+				dataFileReader.close();
 				throw new IllegalStateException("Indexed value cannot be null");
 			}
 			w.write(val.toString() + "\t" + pos + "\n");
@@ -144,6 +189,7 @@ public abstract class AbstractAvroIndex<T extends Comparable<T>> implements Avro
 		w.close();
 		long time = (System.nanoTime() - start) / 1000000000;
 		logger.info("Wrote index in " + time + " seconds.");
+		dataFileReader.close();
 	}
 	
 	

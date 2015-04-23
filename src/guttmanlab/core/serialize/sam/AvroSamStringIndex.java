@@ -41,8 +41,8 @@ public class AvroSamStringIndex implements AvroIndex<String> {
 	}
 
 	@Override
-	public void loadAndValidateIndex() throws IOException {
-		stringIndex.loadAndValidateIndex();
+	public void loadIndex(boolean validate) throws IOException {
+		stringIndex.loadIndex(validate);
 	}
 
 	@SuppressWarnings("unchecked")
