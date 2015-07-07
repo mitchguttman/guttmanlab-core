@@ -1,6 +1,8 @@
 package guttmanlab.core.math;
 import java.math.BigDecimal;
+
 import jsc.distributions.Binomial;
+import jsc.distributions.Poisson;
 
 public class ScanStat {
 	
@@ -45,7 +47,7 @@ public class ScanStat {
 	}
 	
 	public static double poisson(int k, double lambda){
-		cern.jet.random.Poisson poiss=new cern.jet.random.Poisson(lambda, new cern.jet.random.engine.DRand());
+		Poisson poiss=new Poisson(lambda);
 		return poiss.pdf(k);
 	}
 	
