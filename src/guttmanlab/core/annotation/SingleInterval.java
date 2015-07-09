@@ -75,12 +75,6 @@ public class SingleInterval extends AbstractAnnotation{
 	}
 
 	@Override
-	public Annotation merge(Annotation other) {
-		// FIXME Auto-generated method stub
-		throw new UnsupportedOperationException("TODO");
-	}
-
-	@Override
 	public int getNumberOfBlocks() {
 		return 1;
 	}
