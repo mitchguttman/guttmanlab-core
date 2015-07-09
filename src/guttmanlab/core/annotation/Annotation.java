@@ -54,10 +54,13 @@ public interface Annotation {
 		
 		public static Strand consensusStrand(Strand strand1, Strand strand2) {
 			Strand rtrn=INVALID;
-			if(strand1.equals(BOTH) || strand1.equals(UNKNOWN)){ //TODO Verify that this is the correct behavior
+			if(strand1.equals(UNKNOWN) || strand2.equals(UNKNOWN)){
+				rtrn=UNKNOWN;
+			}
+			if(strand1.equals(BOTH)){
 				rtrn=strand2;
 			}
-			if(strand2.equals(BOTH) || strand2.equals(UNKNOWN)){
+			if(strand2.equals(BOTH)){
 				rtrn=strand1;
 			}
 			if(strand1.equals(strand2)){
