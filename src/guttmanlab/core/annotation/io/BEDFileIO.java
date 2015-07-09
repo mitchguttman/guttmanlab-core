@@ -10,6 +10,7 @@ import guttmanlab.core.coordinatespace.CoordinateSpace;
 import guttmanlab.core.datastructures.Pair;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -37,6 +38,10 @@ public class BEDFileIO implements AnnotationFileIO<Gene> {
 		this.referenceSpace=new CoordinateSpace(referenceSizes);
 	}
 	
+	public BEDFileIO(CoordinateSpace referenceSizes){
+		this.referenceSpace=referenceSizes;
+	}
+	
 	/**
 	 * Write collection of annotations to a file
 	 * @param regions The annotations to write
@@ -54,13 +59,18 @@ public class BEDFileIO implements AnnotationFileIO<Gene> {
 	
 	/**
 	 * Static method to get the annotation collection represented in a bed file
-	 * @param fileName Bed file name 
-	 * @param referenceSizes The reference coordinate information containing names and sizes
+	 * @param geneFile Bed file name 
+	 * @param coordinateSpace The reference coordinate information containing names and sizes
 	 * @return The collection of genes described in the bed file
 	 * @throws IOException
 	 */
-	public static AnnotationCollection<Gene> loadFromFile(String fileName, String referenceSizes) throws IOException {
-		BEDFileIO bfio = new BEDFileIO(referenceSizes);
+	public static AnnotationCollection<Gene> loadFromFile(File geneFile, CoordinateSpace coordinateSpace) throws IOException {
+		BEDFileIO bfio = new BEDFileIO(coordinateSpace);
+		return bfio.loadFromFile(geneFile.getAbsolutePath());
+	}
+	
+	public static AnnotationCollection<Gene> loadFromFile(String fileName, CoordinateSpace space) throws IOException {
+		BEDFileIO bfio = new BEDFileIO(space);
 		return bfio.loadFromFile(fileName);
 	}
 	
