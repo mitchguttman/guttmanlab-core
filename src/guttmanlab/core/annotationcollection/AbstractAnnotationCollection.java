@@ -90,6 +90,12 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 	}	
 	
 	@Override
+	public CloseableIterator<? extends PopulatedWindow<T>> getPopulatedWindows(int winSize, int stepSize) {
+		CloseableIterator<T> iter=sortedIterator();
+		return new WindowIterator<T>(iter,winSize,stepSize);
+	}	
+	
+	@Override
 	public CloseableIterator<? extends PopulatedWindow<T>> getPopulatedWindows(Annotation region, int winSize, int stepSize, boolean includeEmpties) {
 		CloseableIterator<T> iter=sortedIterator(region, false);
 		return new WindowIterator<T>(iter,winSize,region,stepSize,includeEmpties);
@@ -172,6 +178,13 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		public WindowIterator(CloseableIterator<T1> iter, int windowLength)
 		{
 			this(iter,windowLength,true);
+			this.region = null;
+		}
+		
+		public WindowIterator(CloseableIterator<T1> iter, int windowLength, int stepSize)
+		{
+			this(iter,windowLength,true);
+			this.stepSize=stepSize;
 			this.region = null;
 		}
 
