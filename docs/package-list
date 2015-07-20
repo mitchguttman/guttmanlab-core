@@ -1,0 +1,14 @@
+guttmanlab.core.annotation
+guttmanlab.core.annotation.io
+guttmanlab.core.annotation.predicate
+guttmanlab.core.annotationcollection
+guttmanlab.core.coordinatespace
+guttmanlab.core.datastructures
+guttmanlab.core.math
+guttmanlab.core.pipeline
+guttmanlab.core.pipeline.util
+guttmanlab.core.sequence
+guttmanlab.core.serialize
+guttmanlab.core.serialize.sam
+guttmanlab.core.test
+guttmanlab.core.util
