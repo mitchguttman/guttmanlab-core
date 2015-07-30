@@ -18,6 +18,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -403,12 +404,12 @@ public class FastqUtils {
 	 * @return The names of files written
 	 * @throws IOException
 	 */
-	public static Collection<String> divideFastqFile(String fastq, int numOutFiles) throws IOException {
+	public static List<String> divideFastqFile(String fastq, int numOutFiles) throws IOException {
 		
 		logger.info("");
 		logger.info("Dividing " + fastq + " into " + numOutFiles + " smaller files...");
 		
-		Collection<String> rtrn = new ArrayList<String>();
+		List<String> rtrn = new ArrayList<String>();
 		
 		boolean allExist = true;
 		BufferedWriter[] bw = new BufferedWriter[numOutFiles];
