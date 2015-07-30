@@ -141,4 +141,23 @@ public class Sequence {
 		throw new UnsupportedOperationException("TODO");
 	}
 	
+	public boolean equals(Object o) {
+		if(!o.getClass().equals(Sequence.class)) {
+			return false;
+		}
+		Sequence otherSeq = (Sequence)o;
+		if(!getName().equals(otherSeq.getName()))	{
+			return false;
+		}
+		if(!getSequenceBases().equals(otherSeq.getSequenceBases()))	{
+			return false;
+		}
+		return true;
+	}
+	
+	public int hashCode() {
+		String s = getName() + ":" + getSequenceBases();
+		return s.hashCode();
+	}
+	
 }
