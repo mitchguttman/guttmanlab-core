@@ -69,6 +69,17 @@ public class BEDFileIO implements AnnotationFileIO<Gene> {
 		return bfio.loadFromFile(geneFile.getAbsolutePath());
 	}
 	
+	/**
+	 * Static method to get the annotation collection represented in a bed file
+	 * @param geneFile Bed file name 
+	 * @param chrSizeFile Table of chromosome names and sizes
+	 * @return The collection of genes described in the bed file
+	 * @throws IOException
+	 */
+	public static AnnotationCollection<Gene> loadFromFile(String fileName, String chrSizeFile) throws IOException {
+		return loadFromFile(fileName, new CoordinateSpace(chrSizeFile));
+	}
+	
 	public static AnnotationCollection<Gene> loadFromFile(String fileName, CoordinateSpace space) throws IOException {
 		BEDFileIO bfio = new BEDFileIO(space);
 		return bfio.loadFromFile(fileName);
