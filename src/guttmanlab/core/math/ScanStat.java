@@ -25,6 +25,27 @@ public class ScanStat {
 		
 	}
 	
+	/**
+     * Params written by Jesse Aug 20, 2012 ... are these definitions correct?
+     * @param k            Observed count
+     * @param lambda    # reads on chromosome / # non-masked bases on chromosome
+     * @param w            window size
+     * @param T            # non-masked bases on chromosome
+     * @return
+     */
+    public static double scanPVal(int k, double lambda, double w, double T){
+        if(k<=2){return 1;}
+        double lambdaW=lambda*w;   // parameter for Poisson distribution
+        double a=((k-lambdaW)/k)*(lambda*(T-w)*poisson(k-1, lambdaW));     // poisson function = Poisson PDF
+        double result=Fp(k-1, lambdaW)*Math.exp(-a);        // Fp = Poisson CDF
+        double p=1-result;
+        p=Math.abs(p);
+        p=Math.min(1, p);
+        //p=Math.max(0, p);
+        return p;
+    }
+	
+	
 	public static BigDecimal getBinomialPValue(double controlCount, double sampleCount, double controlTotal, double sampleTotal, double winSize)
 	{
 		
