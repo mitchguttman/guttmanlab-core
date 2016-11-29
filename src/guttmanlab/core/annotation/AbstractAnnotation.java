@@ -3,6 +3,7 @@ package guttmanlab.core.annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -39,7 +40,7 @@ public abstract class AbstractAnnotation implements Annotation {
 	 */
 	public Collection<Annotation> getBlockSet() {
 		Iterator<SingleInterval> iter = getBlocks();
-		Collection<Annotation> rtrn = new ArrayList<Annotation>();
+		Collection<Annotation> rtrn = new TreeSet<Annotation>();
 		while(iter.hasNext()) {
 			rtrn.add(iter.next());
 		}
@@ -113,6 +114,53 @@ public abstract class AbstractAnnotation implements Annotation {
 		return false;
 	}
 	
+	public boolean overlaps(Annotation other, boolean fullyContained){
+		//If they don't overlap at all, then they don't overlap
+		if(!overlaps(other)){return false;}
+		
+		if(fullyContained){
+			//check if other starts before this does
+			if(other.getReferenceStartPosition()<this.getReferenceStartPosition()){return false;}
+				
+			//check if other ends after this does
+			if(other.getReferenceEndPosition()>this.getReferenceEndPosition()){return false;}
+				
+			//check if other overlaps an intron in this
+			Collection<SingleInterval> introns=this.getIntrons();
+			for(SingleInterval intron: introns){
+				if(intron.overlaps(other)){return false;}
+			}
+		}
+		
+		return true;
+			
+		
+		
+		/*if(!fullyContained){return overlaps(other);}
+		
+		Annotation intersect=intersect(other);
+		if(intersect!=null){
+			System.err.println(intersect +" "+other);
+			return isSame(intersect, other);
+		}
+		return false;*/
+	}
+	
+	private Collection<SingleInterval> getIntrons() {
+		Collection<SingleInterval> rtrn=new TreeSet<SingleInterval>();
+		ArrayList<Annotation> exons=new ArrayList<Annotation>(this.getBlockSet());
+		
+		for(int i=0; i<exons.size()-1; i++){
+			Annotation exon1=exons.get(i);
+			Annotation exon2=exons.get(i+1);
+			SingleInterval intron=new SingleInterval(exon1.getReferenceName(), exon1.getReferenceEndPosition()+1, exon2.getReferenceStartPosition(), exon1.getOrientation());
+			rtrn.add(intron);
+		}
+		return rtrn;
+	}
+
+	
+	
 	/**
 	 * Helper method to calculate overlaps from single blocks
 	 * @param block1
@@ -154,13 +202,22 @@ public abstract class AbstractAnnotation implements Annotation {
 		return toBED(r, g, b, 0.0);
 	}
 	
+	
+	public String toBED(String name) {
+		return toBED(0,0,0, 0.0, name);
+	}
+	
 	public String toBED(int r, int g, int b, double score){
+		return toBED(r,g,b,score, (getName() == null ? toUCSC() : getName()));
+	}
+	
+	public String toBED(int r, int g, int b, double score, String name){
 		if(r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
 			throw new IllegalArgumentException("RGB values must be between 0 and 255");
 		}
 		String rgb = r + "," + g + "," + b;
 		Iterator<SingleInterval> exons = getBlocks();
-		String rtrn=getReferenceName()+"\t"+getReferenceStartPosition()+"\t"+getReferenceEndPosition()+"\t"+(getName() == null ? toUCSC() : getName())+"\t" + score + "\t"+getOrientation()+"\t"+getReferenceEndPosition()+"\t"+getReferenceEndPosition()+"\t"+rgb+"\t"+getNumberOfBlocks();
+		String rtrn=getReferenceName()+"\t"+getReferenceStartPosition()+"\t"+getReferenceEndPosition()+"\t"+name+"\t" + score + "\t"+getOrientation()+"\t"+getReferenceEndPosition()+"\t"+getReferenceEndPosition()+"\t"+rgb+"\t"+getNumberOfBlocks();
 		String sizes="";
 		String starts="";
 		while(exons.hasNext()){
@@ -378,5 +435,33 @@ public abstract class AbstractAnnotation implements Annotation {
 	public int hashCode()
 	{
 		return new HashCodeBuilder(31,37).append(getReferenceName()).append(getReferenceStartPosition()).append(getReferenceEndPosition()).append(getOrientation()).append(getNumberOfBlocks()).toHashCode();
+	}
+	
+	@Override 
+	public int get5Prime(){
+		if(this.getOrientation().equals(Strand.POSITIVE)){
+			return this.getReferenceStartPosition();
+		}
+		else if(this.getOrientation().equals(Strand.NEGATIVE)){
+			return this.getReferenceEndPosition();
+		}
+		else{
+			throw new IllegalStateException("No information about strand");
+		}
+		
+	}
+	
+	@Override 
+	public int get3Prime(){
+		if(this.getOrientation().equals(Strand.POSITIVE)){
+			return this.getReferenceEndPosition();
+		}
+		else if(this.getOrientation().equals(Strand.NEGATIVE)){
+			return this.getReferenceStartPosition();
+		}
+		else{
+			throw new IllegalStateException("No information about strand");
+		}
+		
 	}
 }
