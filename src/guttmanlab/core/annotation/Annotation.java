@@ -107,6 +107,13 @@ public interface Annotation {
 	 * @return True if any of the block in this annotation overlaps the blocks of the other annotation
 	 */
 	public boolean overlaps(Annotation other);
+	
+	/**
+	 * @param other Another annotation
+	 * @param fullyContained whether to require that Other is a complete subset of this annotation
+	 * @return True if any of the block in this annotation overlaps the blocks of the other annotation
+	 */
+	public boolean overlaps(Annotation other, boolean fullyContained);
 
 	/**
 	 * @param other Another annotation
@@ -179,6 +186,13 @@ public interface Annotation {
 	 * @return String representation
 	 */
 	public String toBED(double score);
+	
+	/**
+	 * Return a BED string representing the Annotation
+	 * @param name Annotation name
+	 * @return String representation
+	 */
+	public String toBED(String name);
 
 	/**
 	 * Return a BED string representation of the Annotation
@@ -273,5 +287,17 @@ public interface Annotation {
 	 * @return -1,1,or 0 based on natural ordering defined in Abstract Annotation
 	 */
 	int compareTo(Annotation other);
+
+	/**
+	 * 
+	 * @return The 3' position of this annotation
+	 */
+	public int get3Prime();
+
+	/**
+	 * 
+	 * @return The 5' position of this annotation
+	 */
+	public int get5Prime();
 	
 }
