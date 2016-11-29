@@ -55,7 +55,7 @@ public class BAMSingleReadCollection extends AbstractAnnotationCollection<SAMFra
 
 	@Override
 	public CloseableIterator<SAMFragment> sortedIterator(Annotation region, boolean fullyContained) {
-		CloseableIteratorChain iter_chain = new CloseableIteratorChain(region);
+		CloseableIteratorChain iter_chain = new CloseableIteratorChain(region, fullyContained);
 		return new FilteredIterator<SAMFragment>(iter_chain, getFilters(),region.getOrientation());
 	}
 	
@@ -66,13 +66,15 @@ public class BAMSingleReadCollection extends AbstractAnnotationCollection<SAMFra
 		private Annotation region;
 		private SAMFragment next;
 		private ArrayList<String> splicedReadNames;
+		boolean fullyContained;
 		
-		public CloseableIteratorChain(Annotation region)
+		public CloseableIteratorChain(Annotation region, boolean fullyContained)
 		{
 			this.region = region;
 			this.blocks = region.getBlocks();
 			this.currentIterator = null;
 			this.splicedReadNames = new ArrayList<String>();
+			this.fullyContained=fullyContained;
 		}
 		
 		public boolean hasNext(){
@@ -81,7 +83,7 @@ public class BAMSingleReadCollection extends AbstractAnnotationCollection<SAMFra
 				if(blocks.hasNext())
 				{
 					Annotation block = blocks.next();
-					currentIterator = new WrappedIterator(reader.queryOverlapping(region.getReferenceName(), block.getReferenceStartPosition()+1,block.getReferenceEndPosition()));
+					currentIterator = new WrappedIterator(reader.queryOverlapping(region.getReferenceName(), block.getReferenceStartPosition()+1,block.getReferenceEndPosition()), region, fullyContained);
 					return hasNext();
 				}
 				else //there were no more blocks
@@ -165,19 +167,42 @@ public class BAMSingleReadCollection extends AbstractAnnotationCollection<SAMFra
 	public class WrappedIterator implements CloseableIterator<SAMFragment>{
 
 		SAMRecordIterator iter;
+		Annotation region;
+		boolean fullyContained;
+		SAMFragment next;
+		
+		public WrappedIterator(SAMRecordIterator iter, Annotation region, boolean fullyContained){
+			this.iter=iter;
+			this.region=region;
+			this.fullyContained=fullyContained;
+		}
 		
 		public WrappedIterator(SAMRecordIterator iter){
 			this.iter=iter;
+			this.region=null;
 		}
 
 		@Override
 		public boolean hasNext() {
-			return iter.hasNext();
+			boolean isValid=false;
+			while(iter.hasNext() && !isValid){
+				SAMFragment fragment=new SAMFragment(iter.next());
+				if(isValid(fragment)){
+					isValid=true;
+					this.next=fragment;
+				}
+			}
+			return isValid;	
+		}
+		
+		private boolean isValid(SAMFragment fragment){
+			if(region==null){return true;}
+			return region.overlaps(fragment, fullyContained);
 		}
 
 		@Override
 		public SAMFragment next() {
-			return new SAMFragment(iter.next());
+			return next;
 		}
 
 		@Override
