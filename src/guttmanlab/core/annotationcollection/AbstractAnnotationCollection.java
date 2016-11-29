@@ -10,6 +10,7 @@ import guttmanlab.core.annotation.SingleInterval;
 import guttmanlab.core.annotation.Annotation.Strand;
 import guttmanlab.core.coordinatespace.CoordinateSpace;
 import guttmanlab.core.datastructures.IntervalTree;
+import guttmanlab.core.math.ScanStat;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -371,6 +372,15 @@ public abstract class AbstractAnnotationCollection<T extends Annotation> impleme
 		iter.close();
 		this.numAnnotations = count;
 		return this.numAnnotations;
+	}
+	
+	@Override
+	public double computeScanPValue(Annotation region){
+		int k=numOverlappers(region, true);
+		double lambda=(double)getNumAnnotations()/(double)getReferenceCoordinateSpace().getTotalReferenceLength();
+		int w=region.size();
+		long T=getReferenceCoordinateSpace().getTotalReferenceLength();
+		return ScanStat.scanPVal(k, lambda, w, T);
 	}
 	
 	
