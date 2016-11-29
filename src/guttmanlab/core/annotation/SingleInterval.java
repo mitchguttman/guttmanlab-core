@@ -12,7 +12,7 @@ import java.util.Iterator;
  * @author mguttman
  *
  */
-public class SingleInterval extends AbstractAnnotation{
+public class SingleInterval extends AbstractAnnotation implements Comparable<SingleInterval>{
 
 	private String referenceName;
 	private int startPos;
@@ -135,5 +135,12 @@ public class SingleInterval extends AbstractAnnotation{
 		throw new UnsupportedOperationException();
 	}
 	
+	@Override
+	public int compareTo(SingleInterval other) {
+		if(!getReferenceName().equalsIgnoreCase(other.getReferenceName())){return getReferenceName().compareTo(other.getReferenceName());}
+		int starts=new Integer(getReferenceStartPosition()).compareTo(new Integer(other.getReferenceStartPosition()));
+		if(starts!=0){return starts;}
+		return new Integer(getReferenceEndPosition()).compareTo(new Integer(other.getReferenceEndPosition()));
+	}
 	
 }
