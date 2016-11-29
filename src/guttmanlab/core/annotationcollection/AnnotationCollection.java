@@ -144,4 +144,11 @@ public interface AnnotationCollection<T extends Annotation> {
 	 * @return the number of annotations in the collection
 	 */
 	public int getNumAnnotations();
+	
+	/**
+	 * Compute the Scan Distribution p-value for the number of reads overlapping a region
+	 * @param region The region to analyze
+	 * @return Scan p-value
+	 */
+	public double computeScanPValue(Annotation region);
 }
